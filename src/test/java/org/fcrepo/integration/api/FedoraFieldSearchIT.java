@@ -1,4 +1,4 @@
-package org.fcrepo.api;
+package org.fcrepo.integration.api;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;

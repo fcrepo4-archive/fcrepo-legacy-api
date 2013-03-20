@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.integration.api;
 
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.compile;
@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.api.AbstractResourceIT;
+import org.fcrepo.integration.api.AbstractResourceIT;
 import org.junit.Test;
 
 public class FedoraIdentifiersIT extends AbstractResourceIT {

@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.integration.api;
 
 import static java.util.regex.Pattern.compile;
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.api.AbstractResourceIT;
+import org.fcrepo.integration.api.AbstractResourceIT;
 import org.junit.Test;
 
 public class FedoraObjectsIT extends AbstractResourceIT {

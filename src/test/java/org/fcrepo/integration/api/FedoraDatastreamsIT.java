@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.integration.api;
 
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.compile;
