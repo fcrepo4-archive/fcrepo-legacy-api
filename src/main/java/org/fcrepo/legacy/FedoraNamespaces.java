@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static com.google.common.collect.ImmutableSet.builder;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableSet.Builder;
  * 
  */
 @Component
-@Path("/rest/namespaces")
+@Path("/v3/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 
     /**

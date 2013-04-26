@@ -57,7 +57,7 @@ public abstract class AbstractResourceIT {
     protected static final String HOSTNAME = "localhost";
 
     protected static final String serverAddress = "http://" + HOSTNAME + ":" +
-            SERVER_PORT + "/rest/";
+            SERVER_PORT + "/v3/";
 
     protected final PoolingClientConnectionManager connectionManager =
             new PoolingClientConnectionManager();

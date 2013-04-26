@@ -1,7 +1,8 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
-import static org.fcrepo.api.TestHelpers.getUriInfoImpl;
+import static org.fcrepo.legacy.LegacyPathHelpers.OBJECT_PATH;
+import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -70,7 +71,7 @@ public class FedoraObjectsTest {
                 mockSessions.getSession(any(SecurityContext.class),
                         any(HttpServletRequest.class))).thenReturn(mockSession);
         testObj.setSessionFactory(mockSessions);
-        testObj.setUriInfo(getUriInfoImpl());
+        testObj.setUriInfo(TestHelpers.getUriInfoImpl());
         testObj.setPidMinter(new UUIDPidMinter());
         testObj.setHttpServletRequest(mockServletRequest);
         testObj.setSecurityContext(mockSecurityContext);
@@ -86,7 +87,7 @@ public class FedoraObjectsTest {
         final Response actual = testObj.getObjects();
         assertNotNull(actual);
         assertEquals(Status.OK.getStatusCode(), actual.getStatus());
-        verify(mockObjects).getObjectNames();
+        verify(mockObjects).getObjectNames(OBJECT_PATH);
         verify(mockSession, never()).save();
     }
 
@@ -116,7 +117,7 @@ public class FedoraObjectsTest {
         assertNotNull(actual);
         assertEquals(Status.CREATED.getStatusCode(), actual.getStatus());
         assertTrue(actual.getEntity().toString().endsWith(pid));
-        verify(mockObjects).createObject(mockSession, pid);
+        verify(mockObjects).createObject(mockSession, getObjectPath(pid));
         verify(mockSession).save();
     }
 
@@ -124,11 +125,11 @@ public class FedoraObjectsTest {
     public void testGetObject() throws RepositoryException, IOException {
         final String pid = "testObject";
         final FedoraObject mockObj = mock(FedoraObject.class);
-        when(mockObjects.getObject(pid)).thenReturn(mockObj);
+        when(mockObjects.getObject(getObjectPath(pid))).thenReturn(mockObj);
         final ObjectProfile actual = testObj.getObject(pid);
         assertNotNull(actual);
         assertEquals(pid, actual.pid);
-        verify(mockObjects).getObject(pid);
+        verify(mockObjects).getObject(getObjectPath(pid));
         verify(mockSession, never()).save();
     }
 
@@ -138,7 +139,7 @@ public class FedoraObjectsTest {
         final Response actual = testObj.deleteObject(pid);
         assertNotNull(actual);
         assertEquals(Status.NO_CONTENT.getStatusCode(), actual.getStatus());
-        verify(mockObjects).deleteObject(pid, mockSession);
+        verify(mockObjects).deleteObject(mockSession, getObjectPath(pid));
         verify(mockSession).save();
     }
 }

@@ -1,8 +1,8 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
-import static org.fcrepo.api.TestHelpers.getQueryMock;
-import static org.fcrepo.api.TestHelpers.getQuerySessionMock;
+import static org.fcrepo.legacy.TestHelpers.getQueryMock;
+import static org.fcrepo.legacy.TestHelpers.getQuerySessionMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

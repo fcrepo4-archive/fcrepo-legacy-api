@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static java.lang.Integer.parseInt;
 import static javax.jcr.query.Query.JCR_SQL2;
@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Path("/rest/sitemap")
+@Path("/v3/sitemap")
 public class FedoraSitemap extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraSitemap.class);

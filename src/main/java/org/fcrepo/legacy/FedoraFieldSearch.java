@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static com.google.common.collect.ImmutableList.builder;
 import static java.lang.Integer.parseInt;
@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableList;
  */
 
 @Component
-@Path("/rest/search")
+@Path("/v3/search")
 public class FedoraFieldSearch extends AbstractResource implements
         FedoraJcrTypes {
 

@@ -1,7 +1,7 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
-import static org.fcrepo.api.TestHelpers.getUriInfoImpl;
+import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;

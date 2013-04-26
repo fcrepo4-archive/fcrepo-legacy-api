@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Path("/rest/objects")
+@Path("/v3/objects")
 public class FedoraObjects extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraObjects.class);
@@ -54,7 +54,7 @@ public class FedoraObjects extends AbstractResource {
 	@Timed
     public Response getObjects() throws RepositoryException {
 
-        return ok(objectService.getObjectNames().toString()).build();
+        return ok(objectService.getObjectNames(LegacyPathHelpers.OBJECT_PATH).toString()).build();
 
     }
 
@@ -113,7 +113,7 @@ public class FedoraObjects extends AbstractResource {
         final Session session = getAuthenticatedSession();
         try {
             final FedoraObject result =
-                    objectService.createObject(session, pid);
+                    objectService.createObject(session, LegacyPathHelpers.getObjectPath(pid));
             if (label != null && !"".equals(label)) {
                 result.setLabel(label);
             }
@@ -142,7 +142,7 @@ public class FedoraObjects extends AbstractResource {
     final String pid) throws RepositoryException, IOException {
 
         final ObjectProfile objectProfile = new ObjectProfile();
-        final FedoraObject obj = objectService.getObject(pid);
+        final FedoraObject obj = objectService.getObject(LegacyPathHelpers.getObjectPath(pid));
         objectProfile.pid = pid;
         objectProfile.objLabel = obj.getLabel();
         objectProfile.objOwnerId = obj.getOwnerId();
@@ -170,7 +170,7 @@ public class FedoraObjects extends AbstractResource {
     public Response deleteObject(@PathParam("pid")
     final String pid) throws RepositoryException {
         final Session session = getAuthenticatedSession();
-        objectService.deleteObject(pid, session);
+        objectService.deleteObject(session, LegacyPathHelpers.getObjectPath(pid));
         session.save();
         return noContent().build();
     }

@@ -13,6 +13,6 @@
     
     <context:annotation-config />
     
-    <context:component-scan base-package="org.fcrepo.api, org.fcrepo.exceptionhandlers"/>
+    <context:component-scan base-package="org.fcrepo.legacy, org.fcrepo.exceptionhandlers"/>
 
 </beans>

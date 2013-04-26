@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static com.google.common.collect.ImmutableMap.builder;
 import static javax.jcr.Repository.REP_NAME_DESC;
@@ -8,7 +8,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.ok;
-import static org.fcrepo.services.PathService.OBJECT_PATH;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap.Builder;
 
 @Component
-@Path("/rest/describe")
+@Path("/v3/describe")
 public class FedoraRepository extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraRepository.class);
@@ -85,7 +84,7 @@ public class FedoraRepository extends AbstractResource {
         final DescribeRepository description = new DescribeRepository();
         description.repositoryBaseURL = uriInfo.getBaseUri();
         description.sampleOAIURL =
-                uriInfo.getBaseUriBuilder().path(OBJECT_PATH + "/123/oai_dc")
+                uriInfo.getBaseUriBuilder().path(LegacyPathHelpers.OBJECT_PATH + "/123/oai_dc")
                         .build();
         description.repositorySize = objectService.getRepositorySize(session);
         description.numberOfObjects =

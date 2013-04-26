@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;

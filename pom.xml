@@ -8,12 +8,12 @@
     <version>4.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fcrepo-http-api</artifactId>
+  <artifactId>fcrepo-legacy-api</artifactId>
   <packaging>bundle</packaging>
 
-  <description>Fedora 4.x HTTP API</description>
+  <description>Fedora 3.x-compatible HTTP API</description>
 
-  <name>fcrepo 4.x HTTP API</name>
+  <name>fcrepo 3.x compatible HTTP API</name>
   
   <properties>
     <resteasy.version>2.3.5.Final</resteasy.version>

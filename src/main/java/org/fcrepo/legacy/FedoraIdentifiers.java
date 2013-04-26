@@ -1,5 +1,5 @@
 
-package org.fcrepo.api;
+package org.fcrepo.legacy;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.ContiguousSet.create;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  * 
  */
 @Component
-@Path("/rest/nextPID")
+@Path("/v3/nextPID")
 public class FedoraIdentifiers extends AbstractResource {
 
     /**

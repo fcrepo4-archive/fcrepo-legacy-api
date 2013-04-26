@@ -4,7 +4,7 @@ package org.fcrepo.integration.api;
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.compile;
 import static junit.framework.TestCase.assertFalse;
-import static org.fcrepo.services.PathService.OBJECT_PATH;
+import static org.fcrepo.legacy.LegacyPathHelpers.OBJECT_PATH;
 import static org.fcrepo.utils.FixityResult.FixityState.BAD_CHECKSUM;
 import static org.fcrepo.utils.FixityResult.FixityState.BAD_SIZE;
 import static org.junit.Assert.assertEquals;
