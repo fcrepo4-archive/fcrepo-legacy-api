@@ -43,7 +43,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import com.yammer.metrics.annotation.Timed;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.Datastream;
 import org.fcrepo.exception.InvalidChecksumException;
@@ -63,8 +62,9 @@ import com.google.common.base.Function;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.MultiPart;
+import com.yammer.metrics.annotation.Timed;
 
-@Component
+@Component("fedoraLegacyDatastreams")
 @Path("/v3/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
 

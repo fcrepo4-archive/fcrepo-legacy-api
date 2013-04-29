@@ -22,7 +22,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import com.yammer.metrics.annotation.Timed;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.search.FieldSearchResult;
 import org.fcrepo.jaxb.search.ObjectFields;
@@ -32,12 +31,13 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
+import com.yammer.metrics.annotation.Timed;
 
 /**
  * @author Vincent Nguyen
  */
 
-@Component
+@Component("fedoraLegacySearch")
 @Path("/v3/search")
 public class FedoraFieldSearch extends AbstractResource implements
         FedoraJcrTypes {

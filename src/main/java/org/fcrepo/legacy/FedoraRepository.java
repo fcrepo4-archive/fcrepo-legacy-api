@@ -22,7 +22,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import com.yammer.metrics.annotation.Timed;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
 import org.fcrepo.provider.VelocityViewer;
@@ -32,8 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap.Builder;
+import com.yammer.metrics.annotation.Timed;
 
-@Component
+@Component("fedoraLegacyRepository")
 @Path("/v3/describe")
 public class FedoraRepository extends AbstractResource {
 

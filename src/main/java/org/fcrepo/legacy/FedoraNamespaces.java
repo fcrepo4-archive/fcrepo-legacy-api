@@ -20,13 +20,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import com.yammer.metrics.annotation.Timed;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.management.NamespaceListing;
 import org.fcrepo.jaxb.responses.management.NamespaceListing.Namespace;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableSet.Builder;
+import com.yammer.metrics.annotation.Timed;
 
 /**
  * The purpose of this class is to allow clients to manipulate the JCR
@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableSet.Builder;
  * @author ajs6f
  * 
  */
-@Component
+@Component("fedoraLegacyNamespaces")
 @Path("/v3/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 

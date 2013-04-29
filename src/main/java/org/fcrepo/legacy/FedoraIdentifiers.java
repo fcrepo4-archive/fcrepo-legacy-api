@@ -9,16 +9,20 @@ import static com.google.common.collect.Range.closed;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 
+import java.io.IOException;
+
+import javax.jcr.RepositoryException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import com.yammer.metrics.annotation.Timed;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.management.NextPid;
 import org.springframework.stereotype.Component;
+
+import com.yammer.metrics.annotation.Timed;
 
 /**
  * JAX-RS Resource offering PID creation.
@@ -26,7 +30,7 @@ import org.springframework.stereotype.Component;
  * @author ajs6f
  * 
  */
-@Component
+@Component("fedoraLegacyIdentifiers")
 @Path("/v3/nextPID")
 public class FedoraIdentifiers extends AbstractResource {
 
