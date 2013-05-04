@@ -87,7 +87,7 @@ public class FedoraObjectsTest {
         final Response actual = testObj.getObjects();
         assertNotNull(actual);
         assertEquals(Status.OK.getStatusCode(), actual.getStatus());
-        verify(mockObjects).getObjectNames(OBJECT_PATH);
+        verify(mockObjects).getObjectNames(mockSession, OBJECT_PATH);
         verify(mockSession, never()).save();
     }
 
@@ -125,11 +125,11 @@ public class FedoraObjectsTest {
     public void testGetObject() throws RepositoryException, IOException {
         final String pid = "testObject";
         final FedoraObject mockObj = mock(FedoraObject.class);
-        when(mockObjects.getObject(getObjectPath(pid))).thenReturn(mockObj);
+        when(mockObjects.getObject(mockSession, getObjectPath(pid))).thenReturn(mockObj);
         final ObjectProfile actual = testObj.getObject(pid);
         assertNotNull(actual);
         assertEquals(pid, actual.pid);
-        verify(mockObjects).getObject(getObjectPath(pid));
+        verify(mockObjects).getObject(mockSession, getObjectPath(pid));
         verify(mockSession, never()).save();
     }
 

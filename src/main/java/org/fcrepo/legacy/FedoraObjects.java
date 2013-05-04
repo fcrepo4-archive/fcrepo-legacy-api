@@ -55,7 +55,13 @@ public class FedoraObjects extends AbstractResource {
 	@Timed
     public Response getObjects() throws RepositoryException {
 
-        return ok(objectService.getObjectNames(LegacyPathHelpers.OBJECT_PATH).toString()).build();
+		final Session session = getAuthenticatedSession();
+
+		try {
+        	return ok(objectService.getObjectNames(session, LegacyPathHelpers.OBJECT_PATH).toString()).build();
+		} finally {
+			session.logout();
+		}
 
     }
 
@@ -142,19 +148,25 @@ public class FedoraObjects extends AbstractResource {
     public ObjectProfile getObject(@PathParam("pid")
     final String pid) throws RepositoryException, IOException {
 
-        final ObjectProfile objectProfile = new ObjectProfile();
-        final FedoraObject obj = objectService.getObject(LegacyPathHelpers.getObjectPath(pid));
-        objectProfile.pid = pid;
-        objectProfile.objLabel = obj.getLabel();
-        objectProfile.objOwnerId = obj.getOwnerId();
-        objectProfile.objCreateDate = obj.getCreated();
-        objectProfile.objLastModDate = obj.getLastModified();
-        objectProfile.objSize = obj.getSize();
-        objectProfile.objItemIndexViewURL =
-                uriInfo.getAbsolutePathBuilder().path("datastreams").build();
-        objectProfile.objState = A;
-        objectProfile.objModels = obj.getModels();
-        return objectProfile;
+		final Session session = getAuthenticatedSession();
+
+		try {
+			final ObjectProfile objectProfile = new ObjectProfile();
+			final FedoraObject obj = objectService.getObject(session, LegacyPathHelpers.getObjectPath(pid));
+			objectProfile.pid = pid;
+			objectProfile.objLabel = obj.getLabel();
+			objectProfile.objOwnerId = obj.getOwnerId();
+			objectProfile.objCreateDate = obj.getCreated();
+			objectProfile.objLastModDate = obj.getLastModified();
+			objectProfile.objSize = obj.getSize();
+			objectProfile.objItemIndexViewURL =
+					uriInfo.getAbsolutePathBuilder().path("datastreams").build();
+			objectProfile.objState = A;
+			objectProfile.objModels = obj.getModels();
+			return objectProfile;
+		} finally {
+			session.logout();
+		}
 
     }
 
