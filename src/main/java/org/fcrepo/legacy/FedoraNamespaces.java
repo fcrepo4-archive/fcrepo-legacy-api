@@ -26,7 +26,7 @@ import org.fcrepo.jaxb.responses.management.NamespaceListing.Namespace;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableSet.Builder;
-import com.yammer.metrics.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 
 /**
  * The purpose of this class is to allow clients to manipulate the JCR

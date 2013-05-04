@@ -62,7 +62,7 @@ import com.google.common.base.Function;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.MultiPart;
-import com.yammer.metrics.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 
 @Component("fedoraLegacyDatastreams")
 @Path("/v3/objects/{pid}/datastreams")

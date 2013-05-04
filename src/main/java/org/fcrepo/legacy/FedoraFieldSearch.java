@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
-import com.yammer.metrics.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 
 /**
  * @author Vincent Nguyen

@@ -22,7 +22,7 @@ import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.management.NextPid;
 import org.springframework.stereotype.Component;
 
-import com.yammer.metrics.annotation.Timed;
+import com.codahale.metrics.annotation.Timed;
 
 /**
  * JAX-RS Resource offering PID creation.
