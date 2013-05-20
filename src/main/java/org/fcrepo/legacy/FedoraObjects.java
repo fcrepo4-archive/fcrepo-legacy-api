@@ -1,6 +1,7 @@
 
 package org.fcrepo.legacy;
 
+import static com.hp.hpl.jena.sparql.util.FmtUtils.stringEsc;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
@@ -28,7 +29,12 @@ import javax.ws.rs.core.Response;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.FedoraObject;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
+import org.fcrepo.rdf.GraphSubjects;
+import org.fcrepo.rdf.impl.DefaultGraphSubjects;
 import org.fcrepo.services.ObjectService;
+import org.fcrepo.utils.FedoraJcrTypes;
+import org.fcrepo.utils.FedoraTypesUtils;
+import org.fcrepo.utils.JcrRdfTools;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,8 +47,7 @@ public class FedoraObjects extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraObjects.class);
 
-    @Autowired
-    private ObjectService objectService;
+    private static final GraphSubjects graphSubjects = new DefaultGraphSubjects();
 
     /**
      * 
@@ -58,7 +63,7 @@ public class FedoraObjects extends AbstractResource {
 		final Session session = getAuthenticatedSession();
 
 		try {
-        	return ok(objectService.getObjectNames(session, LegacyPathHelpers.OBJECT_PATH).toString()).build();
+        	return ok(nodeService.getObjectNames(session, LegacyPathHelpers.OBJECT_PATH).toString()).build();
 		} finally {
 			session.logout();
 		}
@@ -121,9 +126,12 @@ public class FedoraObjects extends AbstractResource {
         try {
             final FedoraObject result =
                     objectService.createObject(session, LegacyPathHelpers.getObjectPath(pid));
-            if (label != null && !"".equals(label)) {
-                result.setLabel(label);
-            }
+
+			if (label != null && !"".equals(label)) {
+
+                result.updateGraph("INSERT { <" + graphSubjects.getGraphSubject(result.getNode()) + "> <http://purl.org/dc/terms/title> \"" + stringEsc(label) + "\"} WHERE { }");
+		    }
+
             session.save();
             logger.debug("Finished ingest with pid: {}", pid);
             return created(uriInfo.getRequestUri()).entity(pid).build();
@@ -154,10 +162,14 @@ public class FedoraObjects extends AbstractResource {
 			final ObjectProfile objectProfile = new ObjectProfile();
 			final FedoraObject obj = objectService.getObject(session, LegacyPathHelpers.getObjectPath(pid));
 			objectProfile.pid = pid;
-			objectProfile.objLabel = obj.getLabel();
-			objectProfile.objOwnerId = obj.getOwnerId();
-			objectProfile.objCreateDate = obj.getCreated();
-			objectProfile.objLastModDate = obj.getLastModified();
+
+			if(obj.getNode().hasProperty("dc:title")) {
+				objectProfile.objLabel = obj.getNode().getProperty("dc:title").getValues()[0].getString();
+			}
+
+			objectProfile.objOwnerId = obj.getNode().getProperty(FedoraJcrTypes.JCR_CREATEDBY).getString();
+			objectProfile.objCreateDate = obj.getCreatedDate();
+			objectProfile.objLastModDate = obj.getLastModifiedDate();
 			objectProfile.objSize = obj.getSize();
 			objectProfile.objItemIndexViewURL =
 					uriInfo.getAbsolutePathBuilder().path("datastreams").build();
@@ -183,19 +195,13 @@ public class FedoraObjects extends AbstractResource {
     public Response deleteObject(@PathParam("pid")
     final String pid) throws RepositoryException {
         final Session session = getAuthenticatedSession();
-        objectService.deleteObject(session, LegacyPathHelpers.getObjectPath(pid));
-        session.save();
+		try {
+        	nodeService.deleteObject(session, LegacyPathHelpers.getObjectPath(pid));
+		} finally {
+        	session.save();
+		}
         return noContent().build();
     }
 
-    
-    public ObjectService getObjectService() {
-        return objectService;
-    }
-
-    
-    public void setObjectService(ObjectService objectService) {
-        this.objectService = objectService;
-    }
 
 }

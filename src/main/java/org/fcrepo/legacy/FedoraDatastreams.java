@@ -119,7 +119,7 @@ public class FedoraDatastreams extends AbstractResource {
         try {
             for (final String dsid : dsidList) {
                 logger.debug("Purging datastream: " + dsid);
-                datastreamService.purgeDatastream(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
+                nodeService.deleteObject(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
             }
 
             for (final BodyPart part : multipart.getBodyParts()) {
@@ -157,7 +157,7 @@ public class FedoraDatastreams extends AbstractResource {
         try {
             for (final String dsid : dsidList) {
                 logger.debug("purging datastream " + dsid);
-                datastreamService.purgeDatastream(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
+                nodeService.deleteObject(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
             }
             session.save();
             return noContent().build();
@@ -444,7 +444,7 @@ public class FedoraDatastreams extends AbstractResource {
     final String dsid) throws RepositoryException {
         final Session session = getAuthenticatedSession();
         try {
-            datastreamService.purgeDatastream(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
+            nodeService.deleteObject(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
             session.save();
             return noContent().build();
         } finally {
@@ -460,16 +460,12 @@ public class FedoraDatastreams extends AbstractResource {
         dsProfile.pid = ds.getObject().getName();
         logger.trace("Retrieved datastream " + ds.getDsId() + "'s parent: " +
                 dsProfile.pid);
-        dsProfile.dsLabel = ds.getLabel();
-        logger.trace("Retrieved datastream " + ds.getDsId() + "'s label: " +
-                ds.getLabel());
-        dsProfile.dsOwnerId = ds.getOwnerId();
         dsProfile.dsChecksumType = ds.getContentDigestType();
         dsProfile.dsChecksum = ds.getContentDigest();
         dsProfile.dsState = A;
         dsProfile.dsMIME = ds.getMimeType();
         dsProfile.dsSize = ds.getSize();
-        dsProfile.dsCreateDate = ds.getCreatedDate().toString();
+        dsProfile.dsCreateDate = ds.getCreatedDate();
         return dsProfile;
     }
 

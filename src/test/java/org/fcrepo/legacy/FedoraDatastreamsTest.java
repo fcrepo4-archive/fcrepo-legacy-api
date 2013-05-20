@@ -41,6 +41,7 @@ import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
+import org.fcrepo.services.NodeService;
 import org.fcrepo.session.SessionFactory;
 import org.fcrepo.utils.DatastreamIterator;
 import org.junit.After;
@@ -55,6 +56,8 @@ public class FedoraDatastreamsTest {
     FedoraDatastreams testObj;
 
     DatastreamService mockDatastreams;
+
+    NodeService mockNodes;
 
     LowLevelStorageService mockLow;
 
@@ -78,9 +81,11 @@ public class FedoraDatastreamsTest {
         //Function<HttpServletRequest, Session> mockFunction = mock(Function.class);
         mockDatastreams = mock(DatastreamService.class);
         mockLow = mock(LowLevelStorageService.class);
+        mockNodes = mock(NodeService.class);
 
         testObj = new FedoraDatastreams();
         testObj.setDatastreamService(mockDatastreams);
+        testObj.setNodeService(mockNodes);
         testObj.setSecurityContext(mockSecurityContext);
         testObj.setHttpServletRequest(mockServletRequest);
         testObj.setLlStoreService(mockLow);
@@ -147,8 +152,8 @@ public class FedoraDatastreamsTest {
                 Arrays.asList(new String[] {"ds1", "ds2"});
         final Response actual = testObj.deleteDatastreams(pid, dsidList);
         assertEquals(Status.NO_CONTENT.getStatusCode(), actual.getStatus());
-        verify(mockDatastreams).purgeDatastream(mockSession, getDatastreamsPath(pid, "ds1"));
-        verify(mockDatastreams).purgeDatastream(mockSession, getDatastreamsPath(pid, "ds2"));
+        verify(mockNodes).deleteObject(mockSession, getDatastreamsPath(pid, "ds1"));
+        verify(mockNodes).deleteObject(mockSession, getDatastreamsPath(pid, "ds2"));
         verify(mockSession).save();
     }
 
@@ -275,7 +280,7 @@ public class FedoraDatastreamsTest {
         final Response actual = testObj.deleteDatastream(pid, dsId);
         assertNotNull(actual);
         assertEquals(Status.NO_CONTENT.getStatusCode(), actual.getStatus());
-        verify(mockDatastreams).purgeDatastream(mockSession, getDatastreamsPath(pid, dsId));
+        verify(mockNodes).deleteObject(mockSession, getDatastreamsPath(pid, dsId));
         verify(mockSession).save();
     }
 }

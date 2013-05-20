@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.security.Principal;
 
 import javax.jcr.LoginException;
+import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +29,10 @@ import javax.ws.rs.core.SecurityContext;
 import org.fcrepo.FedoraObject;
 import org.fcrepo.identifiers.UUIDPidMinter;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
+import org.fcrepo.services.NodeService;
 import org.fcrepo.services.ObjectService;
 import org.fcrepo.session.SessionFactory;
+import org.fcrepo.utils.FedoraJcrTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +55,7 @@ public class FedoraObjectsTest {
     Principal mockPrincipal;
 
     String mockUser = "testuser";
+    private NodeService mockNodes;
 
     @Before
     public void setUp() throws LoginException, RepositoryException {
@@ -58,8 +63,11 @@ public class FedoraObjectsTest {
         mockServletRequest = mock(HttpServletRequest.class);
         mockPrincipal = mock(Principal.class);
         mockObjects = mock(ObjectService.class);
+
+        mockNodes = mock(NodeService.class);
         testObj = new FedoraObjects();
         testObj.setObjectService(mockObjects);
+        testObj.setNodeService(mockNodes);
         mockRepo = mock(Repository.class);
         mockSession = mock(Session.class);
         when(mockSession.getUserID()).thenReturn(mockUser);
@@ -87,7 +95,7 @@ public class FedoraObjectsTest {
         final Response actual = testObj.getObjects();
         assertNotNull(actual);
         assertEquals(Status.OK.getStatusCode(), actual.getStatus());
-        verify(mockObjects).getObjectNames(mockSession, OBJECT_PATH);
+        verify(mockNodes).getObjectNames(mockSession, OBJECT_PATH);
         verify(mockSession, never()).save();
     }
 
@@ -125,7 +133,10 @@ public class FedoraObjectsTest {
     public void testGetObject() throws RepositoryException, IOException {
         final String pid = "testObject";
         final FedoraObject mockObj = mock(FedoraObject.class);
+        Node mockNode = mock(Node.class);
         when(mockObjects.getObject(mockSession, getObjectPath(pid))).thenReturn(mockObj);
+        when(mockObj.getNode()).thenReturn(mockNode);
+        when(mockNode.getProperty(FedoraJcrTypes.JCR_CREATEDBY)).thenReturn(mock(Property.class));
         final ObjectProfile actual = testObj.getObject(pid);
         assertNotNull(actual);
         assertEquals(pid, actual.pid);
@@ -139,7 +150,7 @@ public class FedoraObjectsTest {
         final Response actual = testObj.deleteObject(pid);
         assertNotNull(actual);
         assertEquals(Status.NO_CONTENT.getStatusCode(), actual.getStatus());
-        verify(mockObjects).deleteObject(mockSession, getObjectPath(pid));
+        verify(mockNodes).deleteObject(mockSession, getObjectPath(pid));
         verify(mockSession).save();
     }
 }
