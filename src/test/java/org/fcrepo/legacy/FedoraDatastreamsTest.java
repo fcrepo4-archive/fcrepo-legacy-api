@@ -36,7 +36,6 @@ import org.apache.tika.io.IOUtils;
 import org.fcrepo.Datastream;
 import org.fcrepo.exception.InvalidChecksumException;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
-import org.fcrepo.jaxb.responses.management.DatastreamFixity;
 import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
@@ -256,20 +255,6 @@ public class FedoraDatastreamsTest {
                 testObj.getDatastreamHistory(pid, dsId);
         assertNotNull(actual);
         verify(mockDatastreams).getDatastream(mockSession, getDatastreamsPath(pid, dsId));
-        verify(mockSession, never()).save();
-    }
-
-    @Test
-    public void testGetDatastreamFixity() throws RepositoryException,
-            IOException {
-        final String pid = "FedoraDatastreamsTest1";
-        final String dsId = "testDS";
-        final Datastream mockDs = mockDatastream(pid, dsId, null);
-        when(mockDatastreams.getDatastream(mockSession, getDatastreamsPath(pid, dsId))).thenReturn(mockDs);
-        final DatastreamFixity actual = testObj.getDatastreamFixity(pid, dsId);
-        assertNotNull(actual);
-        verify(mockDatastreams).getDatastream(mockSession, getDatastreamsPath(pid, dsId));
-        verify(mockLow).runFixityAndFixProblems(mockDs);
         verify(mockSession, never()).save();
     }
 

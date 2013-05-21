@@ -21,7 +21,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
-import org.fcrepo.jaxb.responses.management.DatastreamFixity;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -47,8 +46,7 @@ public abstract class AbstractResourceIT {
     public void setContext() throws JAXBException {
         context =
                 JAXBContext.newInstance(ObjectProfile.class,
-                        ObjectDatastreams.class, DatastreamProfile.class,
-                        DatastreamFixity.class);
+                        ObjectDatastreams.class, DatastreamProfile.class);
     }
 
     protected static final int SERVER_PORT = Integer.parseInt(System

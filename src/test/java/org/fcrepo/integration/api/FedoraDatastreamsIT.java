@@ -27,7 +27,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.jaxb.responses.management.DatastreamFixity;
 import org.fcrepo.utils.FixityResult;
 import org.junit.Test;
 
@@ -330,40 +329,6 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
         assertFalse("Didn't expect to find the second datastream!", compile(
                 "qwerty", DOTALL).matcher(content).find());
 
-    }
-
-    @Test
-    public void testCheckDatastreamFixity() throws Exception {
-        final HttpPost objMethod = postObjMethod("FedoraDatastreamsTest10");
-        assertEquals(201, getStatus(objMethod));
-        final HttpPost method1 =
-                postDSMethod("FedoraDatastreamsTest10", "zxc", "foo");
-        assertEquals(201, getStatus(method1));
-        final HttpGet method2 =
-                new HttpGet(serverAddress +
-                        "objects/FedoraDatastreamsTest10/datastreams/zxc/fixity");
-        final HttpResponse response = execute(method2);
-        assertEquals(200, response.getStatusLine().getStatusCode());
-        final HttpEntity entity = response.getEntity();
-        final String content = EntityUtils.toString(entity);
-        final JAXBContext context =
-                JAXBContext.newInstance(DatastreamFixity.class);
-        final Unmarshaller um = context.createUnmarshaller();
-        final DatastreamFixity fixity =
-                (DatastreamFixity) um.unmarshal(new java.io.StringReader(
-                        content));
-        int cache = 0;
-        for (final FixityResult status : fixity.statuses) {
-            logger.debug("Verifying cache {} :", cache++);
-            assertFalse(status.status.contains(BAD_CHECKSUM));
-            logger.debug("Checksum matched");
-            assertFalse(status.status.contains(BAD_SIZE));
-            logger.debug("DS size matched");
-            assertTrue("Didn't find the store identifier!", compile(
-                    "infinispan", DOTALL).matcher(status.storeIdentifier)
-                    .find());
-            logger.debug("cache store matched");
-        }
     }
 
     @Test

@@ -48,12 +48,10 @@ import org.fcrepo.Datastream;
 import org.fcrepo.exception.InvalidChecksumException;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams.DatastreamElement;
-import org.fcrepo.jaxb.responses.management.DatastreamFixity;
 import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
-import org.fcrepo.utils.FixityResult;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -394,33 +392,6 @@ public class FedoraDatastreams extends AbstractResource {
 			dsHistory.dsID = dsid;
 			dsHistory.pid = pid;
 			return dsHistory;
-		} finally {
-			session.logout();
-		}
-	}
-
-    @GET
-    @Path("/{dsid}/fixity")
-    @Timed
-    @Produces({TEXT_XML, APPLICATION_JSON})
-    public DatastreamFixity getDatastreamFixity(@PathParam("pid")
-    final String pid, @PathParam("dsid")
-    final String dsid) throws RepositoryException {
-
-
-		final Session session = getAuthenticatedSession();
-
-		try {
-			final Datastream ds = datastreamService.getDatastream(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
-
-			final DatastreamFixity dsf = new DatastreamFixity();
-			dsf.path = LegacyPathHelpers.getDatastreamsPath(pid, dsid);
-			dsf.timestamp = new Date();
-
-			final Collection<FixityResult> blobs =
-					llStoreService.runFixityAndFixProblems(ds);
-			dsf.statuses = new ArrayList<FixityResult>(blobs);
-			return dsf;
 		} finally {
 			session.logout();
 		}
