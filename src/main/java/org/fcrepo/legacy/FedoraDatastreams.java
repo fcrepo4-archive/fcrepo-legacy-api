@@ -2,6 +2,7 @@
 package org.fcrepo.legacy;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
+import static com.google.common.collect.Iterators.filter;
 import static com.google.common.collect.Iterators.transform;
 import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -21,7 +22,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -43,6 +46,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import com.google.common.base.Predicate;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.Datastream;
 import org.fcrepo.exception.InvalidChecksumException;
@@ -52,6 +56,8 @@ import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
+import org.fcrepo.utils.ContentDigest;
+import org.fcrepo.utils.FedoraTypesUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -95,15 +101,20 @@ public class FedoraDatastreams extends AbstractResource {
 		try {
 			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
 
-			objectDatastreams.datastreams =
-					copyOf(transform(datastreamService.getDatastreamsForPath(session, getObjectPath(pid)),
-							ds2dsElement));
+			objectDatastreams.datastreams = getDatastreamsForPath(session, getObjectPath(pid));
+
 
 			return objectDatastreams;
 		} finally {
 			session.logout();
 		}
 
+    }
+
+    private Set<DatastreamElement> getDatastreamsForPath(Session session, String objectPath) throws RepositoryException {
+        final NodeIterator nodes = nodeService.getObject(session, objectPath).getNode().getNodes();
+        return copyOf(transform(filter(new org.fcrepo.utils.NodeIterator(nodes), FedoraTypesUtils.isFedoraDatastream),
+                                ds2dsElement));
     }
 
     @POST
@@ -431,8 +442,10 @@ public class FedoraDatastreams extends AbstractResource {
         dsProfile.pid = ds.getObject().getName();
         logger.trace("Retrieved datastream " + ds.getDsId() + "'s parent: " +
                 dsProfile.pid);
-        dsProfile.dsChecksumType = ds.getContentDigestType();
+        if(ds.getContentDigest() != null) {
+        dsProfile.dsChecksumType = ContentDigest.getAlgorithm(ds.getContentDigest());
         dsProfile.dsChecksum = ds.getContentDigest();
+        }
         dsProfile.dsState = A;
         dsProfile.dsMIME = ds.getMimeType();
         dsProfile.dsSize = ds.getSize();
@@ -440,11 +453,12 @@ public class FedoraDatastreams extends AbstractResource {
         return dsProfile;
     }
 
-    private Function<Datastream, DatastreamElement> ds2dsElement =
-            new Function<Datastream, DatastreamElement>() {
+    private Function<Node, DatastreamElement> ds2dsElement =
+            new Function<Node, DatastreamElement>() {
 
                 @Override
-                public DatastreamElement apply(final Datastream ds) {
+                public DatastreamElement apply(final Node node) {
+                    final Datastream ds = new Datastream(node);
                     try {
                         return new DatastreamElement(ds.getDsId(),
                                 ds.getDsId(), ds.getMimeType());

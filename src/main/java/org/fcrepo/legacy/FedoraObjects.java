@@ -31,12 +31,8 @@ import org.fcrepo.FedoraObject;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
 import org.fcrepo.rdf.GraphSubjects;
 import org.fcrepo.rdf.impl.DefaultGraphSubjects;
-import org.fcrepo.services.ObjectService;
 import org.fcrepo.utils.FedoraJcrTypes;
-import org.fcrepo.utils.FedoraTypesUtils;
-import org.fcrepo.utils.JcrRdfTools;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
@@ -129,7 +125,7 @@ public class FedoraObjects extends AbstractResource {
 
 			if (label != null && !"".equals(label)) {
 
-                result.updateGraph("INSERT { <" + graphSubjects.getGraphSubject(result.getNode()) + "> <http://purl.org/dc/terms/title> \"" + stringEsc(label) + "\"} WHERE { }");
+                result.updatePropertiesDataset("INSERT { <" + graphSubjects.getGraphSubject(result.getNode()) + "> <http://purl.org/dc/terms/title> \"" + stringEsc(label) + "\"} WHERE { }");
 		    }
 
             session.save();

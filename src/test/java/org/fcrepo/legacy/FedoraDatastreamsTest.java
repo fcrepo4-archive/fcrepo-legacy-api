@@ -2,7 +2,6 @@
 package org.fcrepo.legacy;
 
 import static org.fcrepo.test.util.TestHelpers.mockDatastream;
-import static org.fcrepo.test.util.TestHelpers.mockDatastreamIterator;
 import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
 import static org.fcrepo.legacy.LegacyPathHelpers.getDatastreamsPath;
 import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
@@ -21,11 +20,15 @@ import java.io.InputStream;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.LoginException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -34,6 +37,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.tika.io.IOUtils;
 import org.fcrepo.Datastream;
+import org.fcrepo.FedoraResource;
 import org.fcrepo.exception.InvalidChecksumException;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
 import org.fcrepo.jaxb.responses.management.DatastreamHistory;
@@ -42,7 +46,7 @@ import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
 import org.fcrepo.services.NodeService;
 import org.fcrepo.session.SessionFactory;
-import org.fcrepo.utils.DatastreamIterator;
+import org.fcrepo.utils.FedoraJcrTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,14 +115,22 @@ public class FedoraDatastreamsTest {
     public void testGetDatastreams() throws RepositoryException, IOException {
         final String pid = "FedoraDatastreamsTest1";
         final String dsid = "testDS";
-        final DatastreamIterator mockIter =
-                mockDatastreamIterator(pid, dsid, "asdf");
-        when(mockDatastreams.getDatastreamsForPath(mockSession, getObjectPath(pid))).thenReturn(mockIter);
+        final FedoraResource mockObject = mock(FedoraResource.class);
+        final Node mockNode = mock(Node.class);
+        when(mockObject.getNode()).thenReturn(mockNode);
+        final Node mockDatastreamNode = mock(Node.class);
+        final NodeType mockNodeType = mock(NodeType.class);
+        when(mockNodeType.getName()).thenReturn(FedoraJcrTypes.FEDORA_DATASTREAM);
+        when(mockDatastreamNode.getMixinNodeTypes()).thenReturn(new NodeType[] { mockNodeType });
+
+        final NodeIterator mockIterator = mock(NodeIterator.class);
+        when(mockIterator.hasNext()).thenReturn(true, false);
+        when(mockIterator.next()).thenReturn(mockDatastreamNode);
+        when(mockNode.getNodes()).thenReturn(mockIterator);
+        when(mockNodes.getObject(mockSession, getObjectPath(pid))).thenReturn(mockObject);
         final ObjectDatastreams actual = testObj.getDatastreams(pid);
-        verify(mockDatastreams).getDatastreamsForPath(mockSession, getObjectPath(pid));
         verify(mockSession, never()).save();
         assertEquals(1, actual.datastreams.size());
-        assertEquals(dsid, actual.datastreams.iterator().next().dsid);
     }
 
     @Test
