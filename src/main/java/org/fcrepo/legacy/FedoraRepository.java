@@ -26,12 +26,13 @@ import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
 import org.fcrepo.provider.VelocityViewer;
 import org.fcrepo.services.ObjectService;
+import org.fcrepo.services.RepositoryService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ImmutableMap.Builder;
 import com.codahale.metrics.annotation.Timed;
+import com.google.common.collect.ImmutableMap.Builder;
 
 @Component("fedoraLegacyRepository")
 @Path("/v3/describe")
@@ -60,7 +61,7 @@ public class FedoraRepository extends AbstractResource {
 
         // add in node namespaces
         final Builder<String, String> namespaces = builder();
-        namespaces.putAll(objectService.getRepositoryNamespaces(session));
+        namespaces.putAll(RepositoryService.getRepositoryNamespaces(session));
         repoproperties.put("node.namespaces", namespaces.build());
 
         // add in node types
@@ -88,7 +89,7 @@ public class FedoraRepository extends AbstractResource {
                         .build();
         description.repositorySize = objectService.getRepositorySize();
         description.numberOfObjects =
-                objectService.getRepositoryObjectCount(session);
+ objectService.getRepositoryObjectCount();
         session.logout();
         return description;
     }
