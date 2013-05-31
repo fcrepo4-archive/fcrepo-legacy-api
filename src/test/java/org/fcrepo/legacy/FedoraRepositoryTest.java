@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;

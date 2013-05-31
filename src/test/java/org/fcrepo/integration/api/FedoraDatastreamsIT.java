@@ -5,19 +5,13 @@ import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.compile;
 import static junit.framework.TestCase.assertFalse;
 import static org.fcrepo.legacy.LegacyPathHelpers.OBJECT_PATH;
-import static org.fcrepo.utils.FixityResult.FixityState.BAD_CHECKSUM;
-import static org.fcrepo.utils.FixityResult.FixityState.BAD_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -27,7 +21,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.utils.FixityResult;
 import org.junit.Test;
 
 public class FedoraDatastreamsIT extends AbstractResourceIT {
