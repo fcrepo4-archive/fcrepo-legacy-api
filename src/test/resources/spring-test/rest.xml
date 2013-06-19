@@ -12,7 +12,8 @@
     <bean class="org.fcrepo.identifiers.UUIDPidMinter"/>
     
     <context:annotation-config />
-    
-    <context:component-scan base-package="org.fcrepo.legacy, org.fcrepo.exceptionhandlers"/>
+
+  <context:component-scan base-package="org.fcrepo.services, org.fcrepo.legacy, org.fcrepo.serialization, org.fcrepo.responses, org.fcrepo.exceptionhandlers, org.fcrepo.url"/>
+
 
 </beans>

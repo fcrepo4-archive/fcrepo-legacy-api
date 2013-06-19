@@ -43,13 +43,8 @@ public class FedoraFieldSearchTest {
     @Before
     public void setUp() throws LoginException, RepositoryException {
         mockSession = getQuerySessionMock();
-        final SessionFactory mockSessions = mock(SessionFactory.class);
-        when(mockSessions.getSession()).thenReturn(mockSession);
-        when(
-                mockSessions.getSession(any(SecurityContext.class),
-                        any(HttpServletRequest.class))).thenReturn(mockSession);
         testObj = new FedoraFieldSearch();
-        testObj.setSessionFactory(mockSessions);
+        testObj.setSession(mockSession);
     }
 
     @After

@@ -26,8 +26,10 @@ import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.search.FieldSearchResult;
 import org.fcrepo.jaxb.search.ObjectFields;
 import org.fcrepo.provider.VelocityViewer;
+import org.fcrepo.session.InjectedSession;
 import org.fcrepo.utils.FedoraJcrTypes;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
@@ -38,6 +40,7 @@ import com.codahale.metrics.annotation.Timed;
  */
 
 @Component("fedoraLegacySearch")
+@Scope("prototype")
 @Path("/v3/search")
 public class FedoraFieldSearch extends AbstractResource implements
         FedoraJcrTypes {
@@ -46,6 +49,8 @@ public class FedoraFieldSearch extends AbstractResource implements
 
     private static final String QUERY_STRING = buildQueryString();
 
+    @InjectedSession
+    protected Session session;
     @GET
 	@Timed
     @Produces(TEXT_HTML)
@@ -62,7 +67,6 @@ public class FedoraFieldSearch extends AbstractResource implements
     final String offSet, @FormParam("maxResults")
     final String maxResults) throws RepositoryException {
 
-        final Session session = getAuthenticatedSession();
         final QueryManager queryManager =
                 session.getWorkspace().getQueryManager();
         final ValueFactory valueFactory = session.getValueFactory();
@@ -141,5 +145,9 @@ public class FedoraFieldSearch extends AbstractResource implements
         final String sqlExpression =
                 "SELECT * FROM [" + FEDORA_OBJECT + "] WHERE [dc:identifier] like $sterm OR [dc:title] like $sterm";
         return sqlExpression;
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
     }
 }

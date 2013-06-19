@@ -31,13 +31,16 @@ import org.fcrepo.FedoraObject;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
 import org.fcrepo.rdf.GraphSubjects;
 import org.fcrepo.rdf.impl.DefaultGraphSubjects;
+import org.fcrepo.session.InjectedSession;
 import org.fcrepo.utils.FedoraJcrTypes;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 
 @Component("fedoraLegacyObjects")
+@Scope("prototype")
 @Path("/v3/objects")
 public class FedoraObjects extends AbstractResource {
 
@@ -45,6 +48,8 @@ public class FedoraObjects extends AbstractResource {
 
     private static final GraphSubjects graphSubjects = new DefaultGraphSubjects();
 
+    @InjectedSession
+    protected Session session;
     /**
      * 
      * Provides a serialized list of JCR names for all objects in the repo.
@@ -56,7 +61,6 @@ public class FedoraObjects extends AbstractResource {
 	@Timed
     public Response getObjects() throws RepositoryException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
         	return ok(nodeService.getObjectNames(session, LegacyPathHelpers.OBJECT_PATH).toString()).build();
@@ -91,7 +95,6 @@ public class FedoraObjects extends AbstractResource {
 	@Timed
     public Response modify(@PathParam("pid")
     final String pid) throws RepositoryException {
-        final Session session = getAuthenticatedSession();
         try {
             // TODO do something with awful mess of fcrepo3 query params
             session.save();
@@ -118,7 +121,6 @@ public class FedoraObjects extends AbstractResource {
 
         logger.debug("Attempting to ingest with pid: {}", pid);
 
-        final Session session = getAuthenticatedSession();
         try {
             final FedoraObject result =
                     objectService.createObject(session, LegacyPathHelpers.getObjectPath(pid));
@@ -152,7 +154,6 @@ public class FedoraObjects extends AbstractResource {
     public ObjectProfile getObject(@PathParam("pid")
     final String pid) throws RepositoryException, IOException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			final ObjectProfile objectProfile = new ObjectProfile();
@@ -190,7 +191,6 @@ public class FedoraObjects extends AbstractResource {
 	@Timed
     public Response deleteObject(@PathParam("pid")
     final String pid) throws RepositoryException {
-        final Session session = getAuthenticatedSession();
 		try {
         	nodeService.deleteObject(session, LegacyPathHelpers.getObjectPath(pid));
 		} finally {
@@ -199,5 +199,9 @@ public class FedoraObjects extends AbstractResource {
         return noContent().build();
     }
 
+
+    public void setSession(final Session session) {
+        this.session = session;
+    }
 
 }

@@ -1,10 +1,10 @@
 
 package org.fcrepo.legacy;
 
+import static org.fcrepo.test.util.TestHelpers.mockDatastream;
+import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
 import static org.fcrepo.legacy.LegacyPathHelpers.getDatastreamsPath;
 import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
-import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
-import static org.fcrepo.test.util.TestHelpers.mockDatastream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.LoginException;
@@ -88,20 +89,9 @@ public class FedoraDatastreamsTest {
         testObj = new FedoraDatastreams();
         testObj.setDatastreamService(mockDatastreams);
         testObj.setNodeService(mockNodes);
-        testObj.setSecurityContext(mockSecurityContext);
-        testObj.setHttpServletRequest(mockServletRequest);
-        testObj.setLlStoreService(mockLow);
-        //mockRepo = mock(Repository.class);
-        final SessionFactory mockSessions = mock(SessionFactory.class);
-        testObj.setSessionFactory(mockSessions);
-        mockSession = mock(Session.class);
-        when(
-                mockSessions.getSession(any(SecurityContext.class),
-                        any(HttpServletRequest.class))).thenReturn(mockSession);
-        when(mockSession.getUserID()).thenReturn(mockUser);
-        when(mockSecurityContext.getUserPrincipal()).thenReturn(mockPrincipal);
-        when(mockPrincipal.getName()).thenReturn(mockUser);
 
+        mockSession = TestHelpers.getSessionMock();
+        testObj.setSession(mockSession);
         testObj.setUriInfo(getUriInfoImpl());
     }
 
@@ -113,6 +103,7 @@ public class FedoraDatastreamsTest {
     @Test
     public void testGetDatastreams() throws RepositoryException, IOException {
         final String pid = "FedoraDatastreamsTest1";
+        final String dsid = "testDS";
         final FedoraResource mockObject = mock(FedoraResource.class);
         final Node mockNode = mock(Node.class);
         when(mockObject.getNode()).thenReturn(mockNode);
@@ -142,8 +133,7 @@ public class FedoraDatastreamsTest {
         atts.put(dsId2, "sdfg");
         final MultiPart multipart = TestHelpers.getStringsAsMultipart(atts);
         final Response actual =
-                testObj.modifyDatastreams(pid, Arrays.asList(new String[] {
-                        dsId1, dsId2}), multipart);
+                testObj.modifyDatastreams(pid, Arrays.asList(dsId1, dsId2), multipart);
         assertEquals(Status.CREATED.getStatusCode(), actual.getStatus());
         verify(mockDatastreams).createDatastreamNode(any(Session.class),
                 eq(getDatastreamsPath(pid, dsId1)), anyString(),
@@ -158,7 +148,7 @@ public class FedoraDatastreamsTest {
     public void testDeleteDatastreams() throws RepositoryException, IOException {
         final String pid = "FedoraDatastreamsTest1";
         final List<String> dsidList =
-                Arrays.asList(new String[] {"ds1", "ds2"});
+                Arrays.asList("ds1", "ds2");
         final Response actual = testObj.deleteDatastreams(pid, dsidList);
         assertEquals(Status.NO_CONTENT.getStatusCode(), actual.getStatus());
         verify(mockNodes).deleteObject(mockSession, getDatastreamsPath(pid, "ds1"));
@@ -177,7 +167,7 @@ public class FedoraDatastreamsTest {
 
         final Response resp =
                 testObj.getDatastreamsContents(pid, Arrays
-                        .asList(new String[] {dsId}));
+                        .asList(dsId));
         final MultiPart multipart = (MultiPart) resp.getEntity();
 
         verify(mockDatastreams).getDatastream(mockSession, getDatastreamsPath(pid, dsId));

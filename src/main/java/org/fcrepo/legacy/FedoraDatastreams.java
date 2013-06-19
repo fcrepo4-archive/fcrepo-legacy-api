@@ -17,6 +17,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import com.google.common.base.Predicate;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.Datastream;
 import org.fcrepo.exception.InvalidChecksumException;
@@ -53,30 +56,29 @@ import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
+import org.fcrepo.session.InjectedSession;
 import org.fcrepo.utils.ContentDigest;
 import org.fcrepo.utils.FedoraTypesUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Function;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.MultiPart;
+import com.codahale.metrics.annotation.Timed;
 
 @Component("fedoraLegacyDatastreams")
+@Scope("prototype")
 @Path("/v3/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
 
     private final Logger logger = getLogger(FedoraDatastreams.class);
 
-    @Autowired
-    private DatastreamService datastreamService;
-
-    @Autowired
-    private LowLevelStorageService llStoreService;
-
+    @InjectedSession
+    protected Session session;
     /**
      * Returns a list of datastreams for the object
      *
@@ -93,7 +95,6 @@ public class FedoraDatastreams extends AbstractResource {
     public ObjectDatastreams getDatastreams(@PathParam("pid")
     final String pid) throws RepositoryException, IOException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
@@ -121,7 +122,6 @@ public class FedoraDatastreams extends AbstractResource {
     final List<String> dsidList, final MultiPart multipart)
             throws RepositoryException, IOException, InvalidChecksumException {
 
-        final Session session = getAuthenticatedSession();
         try {
             for (final String dsid : dsidList) {
                 logger.debug("Purging datastream: " + dsid);
@@ -159,7 +159,6 @@ public class FedoraDatastreams extends AbstractResource {
     public Response deleteDatastreams(@PathParam("pid")
     final String pid, @QueryParam("dsid")
     final List<String> dsidList) throws RepositoryException {
-        final Session session = getAuthenticatedSession();
         try {
             for (final String dsid : dsidList) {
                 logger.debug("purging datastream " + dsid);
@@ -180,7 +179,6 @@ public class FedoraDatastreams extends AbstractResource {
     final String pid, @QueryParam("dsid")
     final List<String> dsids) throws RepositoryException, IOException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			if (dsids.isEmpty()) {
@@ -241,7 +239,6 @@ public class FedoraDatastreams extends AbstractResource {
                 requestContentType != null ? requestContentType
                         : APPLICATION_OCTET_STREAM_TYPE;
 
-        final Session session = getAuthenticatedSession();
         try {
             final String dsPath = LegacyPathHelpers.getDatastreamsPath(pid, dsid);
             logger.debug("addDatastream {}", dsPath);
@@ -279,7 +276,7 @@ public class FedoraDatastreams extends AbstractResource {
     final String dsid, @HeaderParam("Content-Type")
     final MediaType requestContentType, final InputStream requestBodyStream)
             throws RepositoryException, IOException, InvalidChecksumException {
-        final Session session = getAuthenticatedSession();
+
         try {
             final MediaType contentType =
                     requestContentType != null ? requestContentType
@@ -316,7 +313,6 @@ public class FedoraDatastreams extends AbstractResource {
     final String pid, @PathParam("dsid")
     final String dsid) throws RepositoryException, IOException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			logger.trace("Executing getDatastream() with dsId: " + dsid);
@@ -344,7 +340,6 @@ public class FedoraDatastreams extends AbstractResource {
     final String dsid, @Context
     final Request request) throws RepositoryException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			final Datastream ds = datastreamService.getDatastream(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
@@ -390,7 +385,6 @@ public class FedoraDatastreams extends AbstractResource {
     final String pid, @PathParam("dsid")
     final String dsid) throws RepositoryException, IOException {
 
-		final Session session = getAuthenticatedSession();
 
 		try {
 			// TODO implement this after deciding on a versioning model
@@ -421,7 +415,6 @@ public class FedoraDatastreams extends AbstractResource {
     public Response deleteDatastream(@PathParam("pid")
     final String pid, @PathParam("dsid")
     final String dsid) throws RepositoryException {
-        final Session session = getAuthenticatedSession();
         try {
             nodeService.deleteObject(session, LegacyPathHelpers.getDatastreamsPath(pid, dsid));
             session.save();
@@ -465,20 +458,9 @@ public class FedoraDatastreams extends AbstractResource {
                 }
             };
 
-    public DatastreamService getDatastreamService() {
-        return datastreamService;
+    public void setSession(final Session session) {
+        this.session = session;
     }
 
-    public void setDatastreamService(final DatastreamService datastreamService) {
-        this.datastreamService = datastreamService;
-    }
-
-    public LowLevelStorageService getLlStoreService() {
-        return llStoreService;
-    }
-
-    public void setLlStoreService(final LowLevelStorageService llStoreService) {
-        this.llStoreService = llStoreService;
-    }
 
 }

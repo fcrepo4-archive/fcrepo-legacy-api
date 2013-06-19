@@ -48,20 +48,10 @@ public class FedoraObjectsTest {
 
     Session mockSession;
 
-    SecurityContext mockSecurityContext;
-
-    HttpServletRequest mockServletRequest;
-
-    Principal mockPrincipal;
-
-    String mockUser = "testuser";
     private NodeService mockNodes;
 
     @Before
     public void setUp() throws LoginException, RepositoryException {
-        mockSecurityContext = mock(SecurityContext.class);
-        mockServletRequest = mock(HttpServletRequest.class);
-        mockPrincipal = mock(Principal.class);
         mockObjects = mock(ObjectService.class);
 
         mockNodes = mock(NodeService.class);
@@ -69,20 +59,11 @@ public class FedoraObjectsTest {
         testObj.setObjectService(mockObjects);
         testObj.setNodeService(mockNodes);
         mockRepo = mock(Repository.class);
-        mockSession = mock(Session.class);
-        when(mockSession.getUserID()).thenReturn(mockUser);
-        when(mockSecurityContext.getUserPrincipal()).thenReturn(mockPrincipal);
-        when(mockPrincipal.getName()).thenReturn(mockUser);
-        final SessionFactory mockSessions = mock(SessionFactory.class);
-        when(mockSessions.getSession()).thenReturn(mockSession);
-        when(
-                mockSessions.getSession(any(SecurityContext.class),
-                        any(HttpServletRequest.class))).thenReturn(mockSession);
-        testObj.setSessionFactory(mockSessions);
+
+        mockSession = TestHelpers.getSessionMock();
+        testObj.setSession(mockSession);
         testObj.setUriInfo(TestHelpers.getUriInfoImpl());
         testObj.setPidMinter(new UUIDPidMinter());
-        testObj.setHttpServletRequest(mockServletRequest);
-        testObj.setSecurityContext(mockSecurityContext);
     }
 
     @After

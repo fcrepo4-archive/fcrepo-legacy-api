@@ -12,6 +12,7 @@ import static javax.ws.rs.core.MediaType.TEXT_XML;
 import java.io.IOException;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,6 +21,8 @@ import javax.ws.rs.QueryParam;
 
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.management.NextPid;
+import org.fcrepo.session.InjectedSession;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
@@ -31,9 +34,13 @@ import com.codahale.metrics.annotation.Timed;
  * 
  */
 @Component("fedoraLegacyIdentifiers")
+
+@Scope("prototype")
 @Path("/v3/nextPID")
 public class FedoraIdentifiers extends AbstractResource {
 
+    @InjectedSession
+    protected Session session;
     /**
      * @param numPids
      * @return HTTP 200 with block of PIDs
@@ -51,6 +58,10 @@ public class FedoraIdentifiers extends AbstractResource {
         return new NextPid(copyOf(transform(create(closed(1, numPids),
                 integers()), pidMinter.makePid())));
 
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
     }
 
 }

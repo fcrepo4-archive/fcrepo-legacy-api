@@ -23,6 +23,8 @@ import javax.ws.rs.core.Response;
 import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.management.NamespaceListing;
 import org.fcrepo.jaxb.responses.management.NamespaceListing.Namespace;
+import org.fcrepo.session.InjectedSession;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableSet.Builder;
@@ -39,9 +41,13 @@ import com.codahale.metrics.annotation.Timed;
  * 
  */
 @Component("fedoraLegacyNamespaces")
+
+@Scope("prototype")
 @Path("/v3/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 
+    @InjectedSession
+    protected Session session;
     /**
      * Creates a new namespace in the JCR for use in identifing objects.
      * 
@@ -56,7 +62,6 @@ public class FedoraNamespaces extends AbstractResource {
     public Response registerObjectNamespace(@PathParam("prefix")
     final String prefix, final String uri) throws RepositoryException {
 
-        final Session session = getAuthenticatedSession();
         try {
             final NamespaceRegistry r =
                     session.getWorkspace().getNamespaceRegistry();
@@ -80,7 +85,6 @@ public class FedoraNamespaces extends AbstractResource {
     public Response registerObjectNamespaces(final NamespaceListing nses)
             throws RepositoryException {
 
-        final Session session = getAuthenticatedSession();
         try {
             final NamespaceRegistry r =
                     session.getWorkspace().getNamespaceRegistry();
@@ -107,7 +111,6 @@ public class FedoraNamespaces extends AbstractResource {
     public Namespace retrieveObjectNamespace(@PathParam("ns")
     final String prefix) throws RepositoryException {
 
-        final Session session = getAuthenticatedSession();
         final NamespaceRegistry r =
                 session.getWorkspace().getNamespaceRegistry();
 
@@ -132,7 +135,6 @@ public class FedoraNamespaces extends AbstractResource {
     public NamespaceListing getNamespaces() throws RepositoryException,
             IOException {
         final Builder<Namespace> b = builder();
-        final Session session = getAuthenticatedSession();
         try {
             final NamespaceRegistry r =
                     session.getWorkspace().getNamespaceRegistry();
@@ -144,6 +146,10 @@ public class FedoraNamespaces extends AbstractResource {
             session.logout();
         }
         return new NamespaceListing(b.build());
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
     }
 
 }

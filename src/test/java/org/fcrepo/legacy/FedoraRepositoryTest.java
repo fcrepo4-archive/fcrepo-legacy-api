@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
@@ -46,13 +47,10 @@ public class FedoraRepositoryTest {
         mockObjects = mock(ObjectService.class);
         testFedoraRepo.setObjectService(mockObjects);
         mockRepo = mock(Repository.class);
-        mockSession = mock(Session.class);
-        final SessionFactory mockSessions = mock(SessionFactory.class);
-        when(mockSessions.getSession()).thenReturn(mockSession);
-        when(
-                mockSessions.getSession(any(SecurityContext.class),
-                        any(HttpServletRequest.class))).thenReturn(mockSession);
-        testFedoraRepo.setSessionFactory(mockSessions);
+
+        mockSession = TestHelpers.getSessionMock();
+        testFedoraRepo.setSession(mockSession);
+
         when(mockRepo.getDescriptorKeys()).thenReturn(new String[0]);
         final NodeTypeIterator mockNT = mock(NodeTypeIterator.class);
         when(mockObjects.getAllNodeTypes(mockSession)).thenReturn(mockNT);

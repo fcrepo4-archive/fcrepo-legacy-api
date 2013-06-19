@@ -34,6 +34,7 @@ public class FedoraNamespacesTest {
     FedoraNamespaces testObj;
 
     Namespace mockNs;
+    private Session mockSession;
 
     @Before
     public void setUp() throws LoginException, RepositoryException,
@@ -44,13 +45,11 @@ public class FedoraNamespacesTest {
 
         testObj = new FedoraNamespaces();
         testObj.setUriInfo(TestHelpers.getUriInfoImpl());
-        final SessionFactory mockSessions = mock(SessionFactory.class);
-        final Session mockSession = TestHelpers.getSessionMock();
-        when(mockSessions.getSession()).thenReturn(mockSession);
-        when(
-                mockSessions.getSession(any(SecurityContext.class),
-                        any(HttpServletRequest.class))).thenReturn(mockSession);
-        testObj.setSessionFactory(mockSessions);
+
+
+        mockSession = TestHelpers.getSessionMock();
+        testObj.setSession(mockSession);
+
         testObj.setPidMinter(new UUIDPidMinter());
     }
 

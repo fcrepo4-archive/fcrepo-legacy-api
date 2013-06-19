@@ -26,15 +26,17 @@ import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
 import org.fcrepo.provider.VelocityViewer;
 import org.fcrepo.services.ObjectService;
-import org.fcrepo.services.RepositoryService;
+import org.fcrepo.session.InjectedSession;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.codahale.metrics.annotation.Timed;
 
 @Component("fedoraLegacyRepository")
+@Scope("prototype")
 @Path("/v3/describe")
 public class FedoraRepository extends AbstractResource {
 
@@ -46,11 +48,12 @@ public class FedoraRepository extends AbstractResource {
     @Autowired
     private ObjectService objectService;
 
+    @InjectedSession
+    protected Session session;
     @GET
     @Path("modeshape")
 	@Timed
     public Response describeModeshape() throws IOException, RepositoryException {
-        final Session session = getAuthenticatedSession();
         logger.debug("Repository name: " + repo.getDescriptor(REP_NAME_DESC));
         final Builder<String, Object> repoproperties = builder();
         for (final String key : repo.getDescriptorKeys()) {
@@ -61,7 +64,7 @@ public class FedoraRepository extends AbstractResource {
 
         // add in node namespaces
         final Builder<String, String> namespaces = builder();
-        namespaces.putAll(RepositoryService.getRepositoryNamespaces(session));
+        namespaces.putAll(objectService.getRepositoryNamespaces(session));
         repoproperties.put("node.namespaces", namespaces.build());
 
         // add in node types
@@ -81,7 +84,6 @@ public class FedoraRepository extends AbstractResource {
     @Produces({TEXT_XML, APPLICATION_XML, APPLICATION_JSON})
     public DescribeRepository describe() throws RepositoryException {
 
-        final Session session = getAuthenticatedSession();
         final DescribeRepository description = new DescribeRepository();
         description.repositoryBaseURL = uriInfo.getBaseUri();
         description.sampleOAIURL =
@@ -89,7 +91,7 @@ public class FedoraRepository extends AbstractResource {
                         .build();
         description.repositorySize = objectService.getRepositorySize();
         description.numberOfObjects =
- objectService.getRepositoryObjectCount();
+                objectService.getRepositoryObjectCount();
         session.logout();
         return description;
     }
@@ -114,6 +116,10 @@ public class FedoraRepository extends AbstractResource {
     
     public void setObjectService(ObjectService objectService) {
         this.objectService = objectService;
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
     }
 
 }
