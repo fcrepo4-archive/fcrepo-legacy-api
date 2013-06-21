@@ -6,7 +6,6 @@ import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -14,24 +13,20 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.security.Principal;
 
 import javax.jcr.LoginException;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.fcrepo.FedoraObject;
 import org.fcrepo.identifiers.UUIDPidMinter;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
 import org.fcrepo.services.NodeService;
 import org.fcrepo.services.ObjectService;
-import org.fcrepo.session.SessionFactory;
 import org.fcrepo.utils.FedoraJcrTypes;
 import org.junit.After;
 import org.junit.Before;

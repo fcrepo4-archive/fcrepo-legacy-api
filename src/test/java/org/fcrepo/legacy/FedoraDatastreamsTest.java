@@ -1,10 +1,10 @@
 
 package org.fcrepo.legacy;
 
-import static org.fcrepo.test.util.TestHelpers.mockDatastream;
-import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
 import static org.fcrepo.legacy.LegacyPathHelpers.getDatastreamsPath;
 import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
+import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
+import static org.fcrepo.test.util.TestHelpers.mockDatastream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.LoginException;
@@ -45,7 +44,6 @@ import org.fcrepo.jaxb.responses.management.DatastreamProfile;
 import org.fcrepo.services.DatastreamService;
 import org.fcrepo.services.LowLevelStorageService;
 import org.fcrepo.services.NodeService;
-import org.fcrepo.session.SessionFactory;
 import org.fcrepo.utils.FedoraJcrTypes;
 import org.junit.After;
 import org.junit.Before;
@@ -103,7 +101,6 @@ public class FedoraDatastreamsTest {
     @Test
     public void testGetDatastreams() throws RepositoryException, IOException {
         final String pid = "FedoraDatastreamsTest1";
-        final String dsid = "testDS";
         final FedoraResource mockObject = mock(FedoraResource.class);
         final Node mockNode = mock(Node.class);
         when(mockObject.getNode()).thenReturn(mockNode);

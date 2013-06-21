@@ -3,9 +3,6 @@ package org.fcrepo.legacy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,15 +13,12 @@ import java.util.Set;
 import javax.jcr.LoginException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.fcrepo.identifiers.UUIDPidMinter;
 import org.fcrepo.jaxb.responses.management.NamespaceListing;
 import org.fcrepo.jaxb.responses.management.NamespaceListing.Namespace;
-import org.fcrepo.session.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

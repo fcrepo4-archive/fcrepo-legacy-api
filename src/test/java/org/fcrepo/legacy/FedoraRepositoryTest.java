@@ -3,12 +3,10 @@ package org.fcrepo.legacy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
@@ -16,14 +14,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeTypeIterator;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
 import org.fcrepo.services.ObjectService;
-import org.fcrepo.session.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

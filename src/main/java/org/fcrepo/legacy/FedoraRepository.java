@@ -26,14 +26,15 @@ import org.fcrepo.AbstractResource;
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
 import org.fcrepo.provider.VelocityViewer;
 import org.fcrepo.services.ObjectService;
+import org.fcrepo.services.RepositoryService;
 import org.fcrepo.session.InjectedSession;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ImmutableMap.Builder;
 import com.codahale.metrics.annotation.Timed;
+import com.google.common.collect.ImmutableMap.Builder;
 
 @Component("fedoraLegacyRepository")
 @Scope("prototype")
@@ -64,7 +65,7 @@ public class FedoraRepository extends AbstractResource {
 
         // add in node namespaces
         final Builder<String, String> namespaces = builder();
-        namespaces.putAll(objectService.getRepositoryNamespaces(session));
+        namespaces.putAll(RepositoryService.getRepositoryNamespaces(session));
         repoproperties.put("node.namespaces", namespaces.build());
 
         // add in node types
