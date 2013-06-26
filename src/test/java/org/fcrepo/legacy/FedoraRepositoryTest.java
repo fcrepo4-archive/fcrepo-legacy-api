@@ -62,7 +62,7 @@ public class FedoraRepositoryTest {
     public void testDescribeModeshape() throws RepositoryException, IOException {
         Workspace mockWorkspace = mock(Workspace.class);
         NamespaceRegistry mockNsReg = mock(NamespaceRegistry.class);
-        when(mockNsReg.getPrefixes()).thenReturn(new String[] { });
+        when(mockNsReg.getPrefixes()).thenReturn(new String[] {});
         when(mockWorkspace.getNamespaceRegistry()).thenReturn(mockNsReg);
         when(mockSession.getWorkspace()).thenReturn(mockWorkspace);
         final Response actual = testFedoraRepo.describeModeshape();

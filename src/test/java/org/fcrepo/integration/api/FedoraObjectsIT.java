@@ -26,7 +26,7 @@ public class FedoraObjectsIT extends AbstractResourceIT {
                 .find());
         final String location = response.getFirstHeader("Location").getValue();
         assertEquals("Got wrong Location header for ingest!", serverAddress +
-																	  OBJECT_PATH.replace("/", "") + "/FedoraObjectsTest1", location);
+                OBJECT_PATH.replace("/", "") + "/FedoraObjectsTest1", location);
     }
 
     @Test

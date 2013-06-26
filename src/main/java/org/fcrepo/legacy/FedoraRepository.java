@@ -51,9 +51,10 @@ public class FedoraRepository extends AbstractResource {
 
     @InjectedSession
     protected Session session;
+
     @GET
     @Path("modeshape")
-	@Timed
+    @Timed
     public Response describeModeshape() throws IOException, RepositoryException {
         logger.debug("Repository name: " + repo.getDescriptor(REP_NAME_DESC));
         final Builder<String, Object> repoproperties = builder();
@@ -81,24 +82,23 @@ public class FedoraRepository extends AbstractResource {
     }
 
     @GET
-	@Timed
+    @Timed
     @Produces({TEXT_XML, APPLICATION_XML, APPLICATION_JSON})
     public DescribeRepository describe() throws RepositoryException {
 
         final DescribeRepository description = new DescribeRepository();
         description.repositoryBaseURL = uriInfo.getBaseUri();
         description.sampleOAIURL =
-                uriInfo.getBaseUriBuilder().path(LegacyPathHelpers.OBJECT_PATH + "/123/oai_dc")
-                        .build();
+                uriInfo.getBaseUriBuilder().path(
+                        LegacyPathHelpers.OBJECT_PATH + "/123/oai_dc").build();
         description.repositorySize = objectService.getRepositorySize();
-        description.numberOfObjects =
-                objectService.getRepositoryObjectCount();
+        description.numberOfObjects = objectService.getRepositoryObjectCount();
         session.logout();
         return description;
     }
 
     @GET
-	@Timed
+    @Timed
     @Produces(TEXT_HTML)
     public String describeHtml() throws RepositoryException {
 
@@ -108,13 +108,13 @@ public class FedoraRepository extends AbstractResource {
 
     /**
      * A testing convenience setter for otherwise injected resources
+     * 
      * @param repo
      */
     public void setRepository(final Repository repo) {
         this.repo = repo;
     }
 
-    
     public void setObjectService(ObjectService objectService) {
         this.objectService = objectService;
     }

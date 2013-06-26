@@ -38,16 +38,15 @@ import com.codahale.metrics.annotation.Timed;
  * simple, just a set of prefix-URI pairs.
  * 
  * @author ajs6f
- * 
  */
 @Component("fedoraLegacyNamespaces")
-
 @Scope("prototype")
 @Path("/v3/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 
     @InjectedSession
     protected Session session;
+
     /**
      * Creates a new namespace in the JCR for use in identifing objects.
      * 
@@ -57,7 +56,7 @@ public class FedoraNamespaces extends AbstractResource {
      * @throws RepositoryException
      */
     @POST
-	@Timed
+    @Timed
     @Path("/{prefix}")
     public Response registerObjectNamespace(@PathParam("prefix")
     final String prefix, final String uri) throws RepositoryException {
@@ -80,10 +79,10 @@ public class FedoraNamespaces extends AbstractResource {
      * @throws RepositoryException
      */
     @POST
-	@Timed
+    @Timed
     @Consumes({TEXT_XML, APPLICATION_JSON})
     public Response registerObjectNamespaces(final NamespaceListing nses)
-            throws RepositoryException {
+        throws RepositoryException {
 
         try {
             final NamespaceRegistry r =
@@ -106,7 +105,7 @@ public class FedoraNamespaces extends AbstractResource {
      */
     @GET
     @Path("/{prefix}")
-	@Timed
+    @Timed
     @Produces(APPLICATION_JSON)
     public Namespace retrieveObjectNamespace(@PathParam("ns")
     final String prefix) throws RepositoryException {
@@ -130,10 +129,10 @@ public class FedoraNamespaces extends AbstractResource {
      * @throws IOException
      */
     @GET
-	@Timed
+    @Timed
     @Produces({TEXT_XML, APPLICATION_JSON})
     public NamespaceListing getNamespaces() throws RepositoryException,
-            IOException {
+        IOException {
         final Builder<Namespace> b = builder();
         try {
             final NamespaceRegistry r =

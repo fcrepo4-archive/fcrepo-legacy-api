@@ -42,7 +42,7 @@ public abstract class TestHelpers {
     static String MOCK_URI_STRING = "mock.namespace.org";
 
     public static UriInfo getUriInfoImpl() {
-        //        UriInfo ui = mock(UriInfo.class,withSettings().verboseLogging());
+        // UriInfo ui = mock(UriInfo.class,withSettings().verboseLogging());
         final UriInfo ui = mock(UriInfo.class);
         final UriBuilder ub = new UriBuilderImpl();
         ub.scheme("http");

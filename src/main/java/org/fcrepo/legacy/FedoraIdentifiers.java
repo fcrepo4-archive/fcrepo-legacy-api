@@ -31,16 +31,15 @@ import com.codahale.metrics.annotation.Timed;
  * JAX-RS Resource offering PID creation.
  * 
  * @author ajs6f
- * 
  */
 @Component("fedoraLegacyIdentifiers")
-
 @Scope("prototype")
 @Path("/v3/nextPID")
 public class FedoraIdentifiers extends AbstractResource {
 
     @InjectedSession
     protected Session session;
+
     /**
      * @param numPids
      * @return HTTP 200 with block of PIDs
@@ -49,7 +48,7 @@ public class FedoraIdentifiers extends AbstractResource {
      * @throws TemplateException
      */
     @POST
-	@Timed
+    @Timed
     @Produces({TEXT_XML, APPLICATION_JSON})
     public NextPid getNextPid(@QueryParam("numPids")
     @DefaultValue("1")

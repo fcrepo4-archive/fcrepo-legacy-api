@@ -28,18 +28,18 @@ public class FedoraNamespacesTest {
     FedoraNamespaces testObj;
 
     Namespace mockNs;
+
     private Session mockSession;
 
     @Before
     public void setUp() throws LoginException, RepositoryException,
-            URISyntaxException {
+        URISyntaxException {
         mockNs = new Namespace();
         mockNs.prefix = TestHelpers.MOCK_PREFIX;
         mockNs.uri = new URI(TestHelpers.MOCK_URI_STRING);
 
         testObj = new FedoraNamespaces();
         testObj.setUriInfo(TestHelpers.getUriInfoImpl());
-
 
         mockSession = TestHelpers.getSessionMock();
         testObj.setSession(mockSession);
@@ -55,7 +55,8 @@ public class FedoraNamespacesTest {
     @Test
     public void testRegisterObjectNamespace() throws RepositoryException {
         final Response actual =
-                testObj.registerObjectNamespace(TestHelpers.MOCK_PREFIX, TestHelpers.MOCK_URI_STRING);
+                testObj.registerObjectNamespace(TestHelpers.MOCK_PREFIX,
+                        TestHelpers.MOCK_URI_STRING);
         assertNotNull(actual);
         assertEquals(Status.CREATED.getStatusCode(), actual.getStatus());
     }
@@ -73,8 +74,10 @@ public class FedoraNamespacesTest {
 
     @Test
     public void testRetrieveObjectNamespace() throws RepositoryException {
-        testObj.registerObjectNamespace(TestHelpers.MOCK_PREFIX, TestHelpers.MOCK_URI_STRING);
-        final Namespace actual = testObj.retrieveObjectNamespace(TestHelpers.MOCK_PREFIX);
+        testObj.registerObjectNamespace(TestHelpers.MOCK_PREFIX,
+                TestHelpers.MOCK_URI_STRING);
+        final Namespace actual =
+                testObj.retrieveObjectNamespace(TestHelpers.MOCK_PREFIX);
         assertNotNull(actual);
         assertEquals(actual.uri, mockNs.uri);
     }

@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * A search results object returned from a FedoraFieldSearch
+ * 
  * @author Vincent Nguyen
  */
 public class FieldSearchResult {

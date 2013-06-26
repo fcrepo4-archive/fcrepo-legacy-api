@@ -83,7 +83,8 @@ public class FedoraFieldSearchTest {
         final ObjectFields oFields = oFieldsList.get(0);
         // because the mock nodeIterator doesn't respond to skip
         assertEquals("node1", oFields.getPid());
-        // the first time, unfortunately, is at the beginning of this test to get the NodeIterator mock
+        // the first time, unfortunately, is at the beginning of this test to
+        // get the NodeIterator mock
         verify(mockQ, times(2)).execute();
         verify(mockNodes).skip(1);
     }

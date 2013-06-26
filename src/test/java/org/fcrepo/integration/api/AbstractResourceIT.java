@@ -97,19 +97,19 @@ public abstract class AbstractResourceIT {
     }
 
     protected HttpResponse execute(final HttpUriRequest method)
-            throws ClientProtocolException, IOException {
+        throws ClientProtocolException, IOException {
         logger.debug("Executing: " + method.getMethod() + " to " +
                 method.getURI());
         return client.execute(method);
     }
 
     protected int getStatus(final HttpUriRequest method)
-            throws ClientProtocolException, IOException {
+        throws ClientProtocolException, IOException {
         return execute(method).getStatusLine().getStatusCode();
     }
 
     protected ObjectProfile getObject(final String pid)
-            throws ClientProtocolException, IOException, JAXBException {
+        throws ClientProtocolException, IOException, JAXBException {
         final HttpGet get = new HttpGet(serverAddress + "objects/" + pid);
         final HttpResponse resp = execute(get);
         final Unmarshaller um = context.createUnmarshaller();

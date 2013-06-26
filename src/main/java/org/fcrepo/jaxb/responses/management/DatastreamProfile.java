@@ -14,7 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.fcrepo.Datastream;
 import org.fcrepo.utils.LowLevelCacheEntry;
 
-@XmlRootElement(name = "datastreamProfile", namespace = "http://www.fedora.info/definitions/1/0/management/")
+@XmlRootElement(name = "datastreamProfile",
+        namespace = "http://www.fedora.info/definitions/1/0/management/")
 public class DatastreamProfile {
 
     @XmlAttribute
@@ -84,10 +85,8 @@ public class DatastreamProfile {
 
     /**
      * adds the datastream store information to the datastream profile output.
-     * 
      * datastream profile output in fcrepo4 no longer matches output from
-     * fcrepo3.x 
-     * 
+     * fcrepo3.x
      */
     public static class DSStores {
 
@@ -101,8 +100,7 @@ public class DatastreamProfile {
         public DSStores(final Datastream datastream, final Set<?> cacheEntries) {
             this.storeIdentifiers = new ArrayList<String>();
             for (final Object name : cacheEntries) {
-                final LowLevelCacheEntry cacheEntry =
-                        (LowLevelCacheEntry) name;
+                final LowLevelCacheEntry cacheEntry = (LowLevelCacheEntry) name;
                 storeIdentifiers.add(cacheEntry.getExternalIdentifier());
             }
         }

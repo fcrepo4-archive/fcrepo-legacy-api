@@ -73,12 +73,12 @@ public class DescribeRepository {
     }
 
     public DescribeCluster getClusterConfiguration() {
-    	return clusterConfiguration;
+        return clusterConfiguration;
     }
 
     public void setClusterConfiguration(DescribeCluster describeCluster) {
-    	if(describeCluster != null)
-    		this.clusterConfiguration = describeCluster;
+        if (describeCluster != null)
+            this.clusterConfiguration = describeCluster;
     }
 
 }

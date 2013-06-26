@@ -276,7 +276,8 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
         final HttpResponse postResponse = client.execute(post);
         assertEquals(201, postResponse.getStatusLine().getStatusCode());
 
-        // TODO: we should actually evaluate the multipart response for the things we're expecting
+        // TODO: we should actually evaluate the multipart response for the
+        // things we're expecting
         final HttpGet getDSesMethod =
                 new HttpGet(serverAddress +
                         "objects/FedoraDatastreamsTest9/datastreams/__content__");
@@ -309,7 +310,8 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
         final HttpResponse postResponse = client.execute(post);
         assertEquals(201, postResponse.getStatusLine().getStatusCode());
 
-        // TODO: we should actually evaluate the multipart response for the things we're expecting
+        // TODO: we should actually evaluate the multipart response for the
+        // things we're expecting
         final HttpGet getDSesMethod =
                 new HttpGet(serverAddress +
                         "objects/FedoraDatastreamsTest10/datastreams/__content__?dsid=ds1");

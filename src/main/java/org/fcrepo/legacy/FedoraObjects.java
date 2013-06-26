@@ -46,27 +46,29 @@ public class FedoraObjects extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraObjects.class);
 
-    private static final GraphSubjects graphSubjects = new DefaultGraphSubjects();
+    private static final GraphSubjects graphSubjects =
+            new DefaultGraphSubjects();
 
     @InjectedSession
     protected Session session;
+
     /**
-     * 
      * Provides a serialized list of JCR names for all objects in the repo.
      * 
      * @return 200
      * @throws RepositoryException
      */
     @GET
-	@Timed
+    @Timed
     public Response getObjects() throws RepositoryException {
 
-
-		try {
-        	return ok(nodeService.getObjectNames(session, LegacyPathHelpers.OBJECT_PATH).toString()).build();
-		} finally {
-			session.logout();
-		}
+        try {
+            return ok(
+                    nodeService.getObjectNames(session,
+                            LegacyPathHelpers.OBJECT_PATH).toString()).build();
+        } finally {
+            session.logout();
+        }
 
     }
 
@@ -78,13 +80,14 @@ public class FedoraObjects extends AbstractResource {
      */
     @POST
     @Path("/new")
-	@Timed
+    @Timed
     public Response ingestAndMint() throws RepositoryException {
         return ingest(pidMinter.mintPid(), "");
     }
 
     /**
-     * Does nothing yet-- must be improved to handle the FCREPO3 PUT to /objects/{pid}
+     * Does nothing yet-- must be improved to handle the FCREPO3 PUT to
+     * /objects/{pid}
      * 
      * @param pid
      * @return 201
@@ -92,7 +95,7 @@ public class FedoraObjects extends AbstractResource {
      */
     @PUT
     @Path("/{pid}")
-	@Timed
+    @Timed
     public Response modify(@PathParam("pid")
     final String pid) throws RepositoryException {
         try {
@@ -113,7 +116,7 @@ public class FedoraObjects extends AbstractResource {
      */
     @POST
     @Path("/{pid}")
-	@Timed
+    @Timed
     public Response ingest(@PathParam("pid")
     final String pid, @QueryParam("label")
     @DefaultValue("")
@@ -123,12 +126,16 @@ public class FedoraObjects extends AbstractResource {
 
         try {
             final FedoraObject result =
-                    objectService.createObject(session, LegacyPathHelpers.getObjectPath(pid));
+                    objectService.createObject(session, LegacyPathHelpers
+                            .getObjectPath(pid));
 
-			if (label != null && !"".equals(label)) {
+            if (label != null && !"".equals(label)) {
 
-                result.updatePropertiesDataset("INSERT { <" + graphSubjects.getGraphSubject(result.getNode()) + "> <http://purl.org/dc/terms/title> \"" + stringEsc(label) + "\"} WHERE { }");
-		    }
+                result.updatePropertiesDataset("INSERT { <" +
+                        graphSubjects.getGraphSubject(result.getNode()) +
+                        "> <http://purl.org/dc/terms/title> \"" +
+                        stringEsc(label) + "\"} WHERE { }");
+            }
 
             session.save();
             logger.debug("Finished ingest with pid: {}", pid);
@@ -149,33 +156,39 @@ public class FedoraObjects extends AbstractResource {
      */
     @GET
     @Path("/{pid}")
-	@Timed
+    @Timed
     @Produces({TEXT_XML, APPLICATION_JSON, TEXT_HTML})
     public ObjectProfile getObject(@PathParam("pid")
     final String pid) throws RepositoryException, IOException {
 
+        try {
+            final ObjectProfile objectProfile = new ObjectProfile();
+            final FedoraObject obj =
+                    objectService.getObject(session, LegacyPathHelpers
+                            .getObjectPath(pid));
+            objectProfile.pid = pid;
 
-		try {
-			final ObjectProfile objectProfile = new ObjectProfile();
-			final FedoraObject obj = objectService.getObject(session, LegacyPathHelpers.getObjectPath(pid));
-			objectProfile.pid = pid;
+            if (obj.getNode().hasProperty("dc:title")) {
+                objectProfile.objLabel =
+                        obj.getNode().getProperty("dc:title").getValues()[0]
+                                .getString();
+            }
 
-			if(obj.getNode().hasProperty("dc:title")) {
-				objectProfile.objLabel = obj.getNode().getProperty("dc:title").getValues()[0].getString();
-			}
-
-			objectProfile.objOwnerId = obj.getNode().getProperty(FedoraJcrTypes.JCR_CREATEDBY).getString();
-			objectProfile.objCreateDate = obj.getCreatedDate();
-			objectProfile.objLastModDate = obj.getLastModifiedDate();
-			objectProfile.objSize = obj.getSize();
-			objectProfile.objItemIndexViewURL =
-					uriInfo.getAbsolutePathBuilder().path("datastreams").build();
-			objectProfile.objState = A;
-			objectProfile.objModels = obj.getModels();
-			return objectProfile;
-		} finally {
-			session.logout();
-		}
+            objectProfile.objOwnerId =
+                    obj.getNode().getProperty(FedoraJcrTypes.JCR_CREATEDBY)
+                            .getString();
+            objectProfile.objCreateDate = obj.getCreatedDate();
+            objectProfile.objLastModDate = obj.getLastModifiedDate();
+            objectProfile.objSize = obj.getSize();
+            objectProfile.objItemIndexViewURL =
+                    uriInfo.getAbsolutePathBuilder().path("datastreams")
+                            .build();
+            objectProfile.objState = A;
+            objectProfile.objModels = obj.getModels();
+            return objectProfile;
+        } finally {
+            session.logout();
+        }
 
     }
 
@@ -188,17 +201,17 @@ public class FedoraObjects extends AbstractResource {
      */
     @DELETE
     @Path("/{pid}")
-	@Timed
+    @Timed
     public Response deleteObject(@PathParam("pid")
     final String pid) throws RepositoryException {
-		try {
-        	nodeService.deleteObject(session, LegacyPathHelpers.getObjectPath(pid));
-		} finally {
-        	session.save();
-		}
+        try {
+            nodeService.deleteObject(session, LegacyPathHelpers
+                    .getObjectPath(pid));
+        } finally {
+            session.save();
+        }
         return noContent().build();
     }
-
 
     public void setSession(final Session session) {
         this.session = session;

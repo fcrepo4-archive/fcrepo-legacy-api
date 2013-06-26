@@ -89,7 +89,8 @@ public class FedoraObjectsTest {
         final Response actual = testObj.modify(pid);
         assertNotNull(actual);
         assertEquals(Status.CREATED.getStatusCode(), actual.getStatus());
-        // this verify will fail when modify is actually implemented, thus encouraging the unit test to be updated appropriately.
+        // this verify will fail when modify is actually implemented, thus
+        // encouraging the unit test to be updated appropriately.
         verifyNoMoreInteractions(mockObjects);
         verify(mockSession).save();
     }
@@ -110,9 +111,11 @@ public class FedoraObjectsTest {
         final String pid = "testObject";
         final FedoraObject mockObj = mock(FedoraObject.class);
         Node mockNode = mock(Node.class);
-        when(mockObjects.getObject(mockSession, getObjectPath(pid))).thenReturn(mockObj);
+        when(mockObjects.getObject(mockSession, getObjectPath(pid)))
+                .thenReturn(mockObj);
         when(mockObj.getNode()).thenReturn(mockNode);
-        when(mockNode.getProperty(FedoraJcrTypes.JCR_CREATEDBY)).thenReturn(mock(Property.class));
+        when(mockNode.getProperty(FedoraJcrTypes.JCR_CREATEDBY)).thenReturn(
+                mock(Property.class));
         final ObjectProfile actual = testObj.getObject(pid);
         assertNotNull(actual);
         assertEquals(pid, actual.pid);

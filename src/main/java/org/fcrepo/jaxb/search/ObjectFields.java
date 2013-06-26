@@ -3,6 +3,7 @@ package org.fcrepo.jaxb.search;
 
 /**
  * A basic object with core properties
+ * 
  * @author Vincent Nguyen
  */
 public class ObjectFields {

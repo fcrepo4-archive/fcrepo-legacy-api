@@ -51,15 +51,16 @@ public class FedoraFieldSearch extends AbstractResource implements
 
     @InjectedSession
     protected Session session;
+
     @GET
-	@Timed
+    @Timed
     @Produces(TEXT_HTML)
     public String searchForm() throws RepositoryException {
         return new VelocityViewer().getFieldSearch(null);
     }
 
     @POST
-	@Timed
+    @Timed
     @Produces(TEXT_HTML)
     public String searchSubmit(@FormParam("terms")
     final String terms, @FormParam("offSet")
@@ -88,7 +89,7 @@ public class FedoraFieldSearch extends AbstractResource implements
 
     Query getQuery(final QueryManager queryManager,
             final ValueFactory valueFactory, final String terms)
-            throws RepositoryException {
+        throws RepositoryException {
         final Query query = queryManager.createQuery(QUERY_STRING, JCR_SQL2);
         query.bindValue("sterm", valueFactory.createValue("%" + terms + "%"));
         logger.debug("statement is " + query.getStatement());
@@ -96,7 +97,9 @@ public class FedoraFieldSearch extends AbstractResource implements
     }
 
     /**
-     * Searches the repository using JCR SQL2 queries and returns a FieldSearchResult object
+     * Searches the repository using JCR SQL2 queries and returns a
+     * FieldSearchResult object
+     * 
      * @param sqlExpression
      * @param offSet
      * @param maxResults
@@ -115,7 +118,8 @@ public class FedoraFieldSearch extends AbstractResource implements
         final int size = (int) nodeIter.getSize();
         logger.debug(size + " results found");
 
-        //add the next set of results to the fieldObjects starting at offSet for pagination
+        // add the next set of results to the fieldObjects starting at offSet
+        // for pagination
         int i = offSet;
         nodeIter.skip(offSet);
         while (nodeIter.hasNext() && i < offSet + maxResults) {
@@ -141,9 +145,10 @@ public class FedoraFieldSearch extends AbstractResource implements
     }
 
     public static String buildQueryString() {
-        //TODO expand to more fields
+        // TODO expand to more fields
         final String sqlExpression =
-                "SELECT * FROM [" + FEDORA_OBJECT + "] WHERE [dc:identifier] like $sterm OR [dc:title] like $sterm";
+                "SELECT * FROM [" + FEDORA_OBJECT +
+                        "] WHERE [dc:identifier] like $sterm OR [dc:title] like $sterm";
         return sqlExpression;
     }
 

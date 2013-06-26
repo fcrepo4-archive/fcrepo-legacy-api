@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 
 /**
  * Resolves the view to be used
+ * 
  * @author Vincent Nguyen
- *
  */
 public class VelocityViewer {
 
