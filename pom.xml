@@ -5,10 +5,11 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.0-SNAPSHOT</version>
+    <version>4.0.0-alpha-1</version>
   </parent>
 
   <artifactId>fcrepo-legacy-api</artifactId>
+  <version>4.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <description>Fedora 3.x-compatible HTTP API</description>
@@ -16,14 +17,14 @@
   <name>fcrepo 3.x compatible HTTP API</name>
 
   <properties>
-    <resteasy.version>2.3.5.Final</resteasy.version>
+    <project_name>fcrepo-legacy-api</project_name>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -36,7 +37,7 @@
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -65,14 +66,14 @@
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
@@ -176,4 +177,12 @@
       </plugin>
     </plugins>
   </build>
+  
+  <scm>
+    <connection>scm:git:git://github.com/futures/${project_name}.git
+    </connection>
+    <developerConnection>scm:git:git@github.com:futures/${project_name}.git
+    </developerConnection>
+    <url>https://github.com/futures/${project_name}</url>
+  </scm>
 </project>
