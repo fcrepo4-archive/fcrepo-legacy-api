@@ -74,8 +74,8 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
         final HttpPost method =
                 postDSMethod("FedoraDatastreamsTest2", "zxc", "foo");
         final HttpResponse response = client.execute(method);
-        final String location = response.getFirstHeader("Location").getValue();
         assertEquals(201, response.getStatusLine().getStatusCode());
+        final String location = response.getFirstHeader("Location").getValue();
         assertEquals(
                 "Got wrong URI in Location header for datastream creation!",
                 serverAddress + OBJECT_PATH.replace("/", "") +

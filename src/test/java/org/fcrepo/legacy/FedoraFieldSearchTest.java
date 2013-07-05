@@ -1,18 +1,3 @@
-/**
- * Copyright 2013 DuraSpace, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package org.fcrepo.legacy;
 
@@ -21,6 +6,7 @@ import static org.fcrepo.legacy.TestHelpers.getQuerySessionMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -38,9 +24,12 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
 
 import org.fcrepo.jaxb.search.FieldSearchResult;
 import org.fcrepo.jaxb.search.ObjectFields;
+import org.fcrepo.session.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,10 +41,11 @@ public class FedoraFieldSearchTest {
     Session mockSession;
 
     @Before
-    public void setUp() throws LoginException, RepositoryException {
+    public void setUp() throws LoginException, RepositoryException, NoSuchFieldException {
         mockSession = getQuerySessionMock();
         testObj = new FedoraFieldSearch();
-        testObj.setSession(mockSession);
+
+        TestHelpers.setField(testObj, "session", mockSession);
     }
 
     @After
@@ -98,8 +88,7 @@ public class FedoraFieldSearchTest {
         final ObjectFields oFields = oFieldsList.get(0);
         // because the mock nodeIterator doesn't respond to skip
         assertEquals("node1", oFields.getPid());
-        // the first time, unfortunately, is at the beginning of this test to
-        // get the NodeIterator mock
+        // the first time, unfortunately, is at the beginning of this test to get the NodeIterator mock
         verify(mockQ, times(2)).execute();
         verify(mockNodes).skip(1);
     }

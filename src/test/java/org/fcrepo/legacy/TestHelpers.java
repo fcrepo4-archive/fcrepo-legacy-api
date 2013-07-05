@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.Map;
@@ -177,6 +178,38 @@ public abstract class TestHelpers {
         when(mockRepo.getDescriptorKeys()).thenReturn(mockKeys);
 
         return mockRepo;
+    }
+
+    /**
+     * Set a field via reflection
+     * @param parent the owner object of the field
+     * @param name the name of the field
+     * @param obj the value to set
+     * @throws NoSuchFieldException
+     */
+    public static void setField(Object parent, String name, Object obj)
+            throws NoSuchFieldException {
+        /* check the parent class too if the field could not be found */
+        try {
+            Field f = findField(parent.getClass(), name);
+            f.setAccessible(true);
+            f.set(parent, obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Field findField(Class<?> clazz, String name) throws NoSuchFieldException{
+        for (Field f: clazz.getDeclaredFields()){
+            if (f.getName().equals(name)){
+                return f;
+            }
+        }
+        if (clazz.getSuperclass() == null) {
+            throw new NoSuchFieldException("Field " + name + " could not be found");
+        }else{
+            return findField(clazz.getSuperclass(), name);
+        }
     }
 
 }

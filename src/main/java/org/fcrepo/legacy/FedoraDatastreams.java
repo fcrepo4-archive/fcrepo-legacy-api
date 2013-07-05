@@ -32,6 +32,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -256,8 +257,15 @@ public class FedoraDatastreams extends AbstractResource {
             final String dsPath =
                     LegacyPathHelpers.getDatastreamsPath(pid, dsid);
             logger.debug("addDatastream {}", dsPath);
+            final URI checksumURI;
+
+            if (checksum != null && !checksum.isEmpty()) {
+                checksumURI = ContentDigest.asURI("SHA-1", checksum);
+            } else {
+                checksumURI = null;
+            }
             datastreamService.createDatastreamNode(session, dsPath, contentType
-                    .toString(), requestBodyStream, ContentDigest.asURI("SHA-1", checksum));
+                    .toString(), requestBodyStream, checksumURI);
             session.save();
             return created(uriInfo.getAbsolutePath()).build();
         } finally {
