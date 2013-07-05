@@ -243,8 +243,7 @@ public class FedoraDatastreams extends AbstractResource {
     @Path("/{dsid}")
     @Timed
     public Response addDatastream(@PathParam("pid")
-    final String pid, @QueryParam("checksumType")
-    final String checksumType, @QueryParam("checksum")
+    final String pid, @QueryParam("checksum")
     final String checksum, @PathParam("dsid")
     final String dsid, @HeaderParam("Content-Type")
     final MediaType requestContentType, final InputStream requestBodyStream)
@@ -258,7 +257,7 @@ public class FedoraDatastreams extends AbstractResource {
                     LegacyPathHelpers.getDatastreamsPath(pid, dsid);
             logger.debug("addDatastream {}", dsPath);
             datastreamService.createDatastreamNode(session, dsPath, contentType
-                    .toString(), requestBodyStream, checksumType, checksum);
+                    .toString(), requestBodyStream, ContentDigest.asURI("SHA-1", checksum));
             session.save();
             return created(uriInfo.getAbsolutePath()).build();
         } finally {
