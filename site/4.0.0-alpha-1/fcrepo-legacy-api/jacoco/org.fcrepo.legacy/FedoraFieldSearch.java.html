@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FedoraFieldSearch.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.legacy</a> &gt; <span class="el_source">FedoraFieldSearch.java</span></div><h1>FedoraFieldSearch.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.legacy;
+
+import static com.google.common.collect.ImmutableList.builder;
+import static java.lang.Integer.parseInt;
+import static javax.jcr.query.Query.JCR_SQL2;
+import static javax.ws.rs.core.MediaType.TEXT_HTML;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.ValueFactory;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+
+import org.fcrepo.AbstractResource;
+import org.fcrepo.jaxb.search.FieldSearchResult;
+import org.fcrepo.jaxb.search.ObjectFields;
+import org.fcrepo.provider.VelocityViewer;
+import org.fcrepo.session.InjectedSession;
+import org.fcrepo.utils.FedoraJcrTypes;
+import org.slf4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableList;
+import com.codahale.metrics.annotation.Timed;
+
+/**
+ * @author Vincent Nguyen
+ */
+
+@Component(&quot;fedoraLegacySearch&quot;)
+@Scope(&quot;prototype&quot;)
+@Path(&quot;/v3/search&quot;)
+<span class="fc" id="L60">public class FedoraFieldSearch extends AbstractResource implements</span>
+        FedoraJcrTypes {
+
+<span class="fc" id="L63">    private static final Logger logger = getLogger(FedoraFieldSearch.class);</span>
+
+<span class="fc" id="L65">    private static final String QUERY_STRING = buildQueryString();</span>
+
+    @InjectedSession
+    protected Session session;
+
+    @GET
+    @Timed
+    @Produces(TEXT_HTML)
+    public String searchForm() throws RepositoryException {
+<span class="nc" id="L74">        return new VelocityViewer().getFieldSearch(null);</span>
+    }
+
+    @POST
+    @Timed
+    @Produces(TEXT_HTML)
+    public String searchSubmit(@FormParam(&quot;terms&quot;)
+    final String terms, @FormParam(&quot;offSet&quot;)
+    @DefaultValue(&quot;0&quot;)
+    final String offSet, @FormParam(&quot;maxResults&quot;)
+    final String maxResults) throws RepositoryException {
+
+<span class="fc" id="L86">        final QueryManager queryManager =</span>
+                session.getWorkspace().getQueryManager();
+<span class="fc" id="L88">        final ValueFactory valueFactory = session.getValueFactory();</span>
+<span class="fc" id="L89">        final VelocityViewer view = new VelocityViewer();</span>
+
+<span class="fc" id="L91">        logger.debug(&quot;Searching for &quot; + terms);</span>
+
+<span class="fc" id="L93">        final Query query = getQuery(queryManager, valueFactory, terms);</span>
+<span class="fc" id="L94">        logger.debug(&quot;statement is &quot; + query.getStatement());</span>
+
+<span class="fc" id="L96">        final FieldSearchResult fsr =</span>
+                search(query, parseInt(offSet), parseInt(maxResults));
+<span class="fc" id="L98">        fsr.setSearchTerms(terms);</span>
+
+<span class="fc" id="L100">        session.logout();</span>
+
+<span class="fc" id="L102">        return view.getFieldSearch(fsr);</span>
+    }
+
+    Query getQuery(final QueryManager queryManager,
+            final ValueFactory valueFactory, final String terms)
+        throws RepositoryException {
+<span class="fc" id="L108">        final Query query = queryManager.createQuery(QUERY_STRING, JCR_SQL2);</span>
+<span class="fc" id="L109">        query.bindValue(&quot;sterm&quot;, valueFactory.createValue(&quot;%&quot; + terms + &quot;%&quot;));</span>
+<span class="fc" id="L110">        logger.debug(&quot;statement is &quot; + query.getStatement());</span>
+<span class="fc" id="L111">        return query;</span>
+    }
+
+    /**
+     * Searches the repository using JCR SQL2 queries and returns a
+     * FieldSearchResult object
+     * 
+     * @param sqlExpression
+     * @param offSet
+     * @param maxResults
+     * @return
+     * @throws LoginException
+     * @throws RepositoryException
+     */
+    public FieldSearchResult search(final Query query, final int offSet,
+            final int maxResults) throws RepositoryException {
+
+<span class="fc" id="L128">        final ImmutableList.Builder&lt;ObjectFields&gt; fieldObjects = builder();</span>
+
+<span class="fc" id="L130">        final QueryResult queryResults = query.execute();</span>
+
+<span class="fc" id="L132">        final NodeIterator nodeIter = queryResults.getNodes();</span>
+<span class="fc" id="L133">        final int size = (int) nodeIter.getSize();</span>
+<span class="fc" id="L134">        logger.debug(size + &quot; results found&quot;);</span>
+
+        // add the next set of results to the fieldObjects starting at offSet
+        // for pagination
+<span class="fc" id="L138">        int i = offSet;</span>
+<span class="fc" id="L139">        nodeIter.skip(offSet);</span>
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        while (nodeIter.hasNext() &amp;&amp; i &lt; offSet + maxResults) {</span>
+<span class="fc" id="L141">            final ObjectFields obj = new ObjectFields();</span>
+            try {
+<span class="fc" id="L143">                final Node node = nodeIter.nextNode();</span>
+<span class="fc" id="L144">                obj.setPid(node.getName());</span>
+<span class="fc" id="L145">                obj.setPath(node.getPath());</span>
+<span class="fc" id="L146">                fieldObjects.add(obj);</span>
+<span class="nc" id="L147">            } catch (final RepositoryException ex) {</span>
+<span class="nc" id="L148">                logger.error(ex.getMessage());</span>
+<span class="fc" id="L149">            }</span>
+<span class="fc" id="L150">            i++;</span>
+<span class="fc" id="L151">        }</span>
+
+<span class="fc" id="L153">        final FieldSearchResult fsr =</span>
+                new FieldSearchResult(fieldObjects.build(), offSet, maxResults,
+                        size);
+<span class="fc" id="L156">        fsr.setStart(offSet);</span>
+<span class="fc" id="L157">        fsr.setMaxResults(maxResults);</span>
+
+<span class="fc" id="L159">        return fsr;</span>
+    }
+
+    public static String buildQueryString() {
+        // TODO expand to more fields
+        final String sqlExpression =
+                &quot;SELECT * FROM [&quot; + FEDORA_OBJECT +
+                        &quot;] WHERE [dc:identifier] like $sterm OR [dc:title] like $sterm&quot;;
+<span class="fc" id="L167">        return sqlExpression;</span>
+    }
+
+    public void setSession(final Session session) {
+<span class="nc" id="L171">        this.session = session;</span>
+<span class="nc" id="L172">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

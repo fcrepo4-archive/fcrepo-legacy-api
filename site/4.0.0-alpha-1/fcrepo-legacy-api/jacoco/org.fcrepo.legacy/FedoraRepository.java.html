@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FedoraRepository.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.legacy</a> &gt; <span class="el_source">FedoraRepository.java</span></div><h1>FedoraRepository.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.legacy;
+
+import static com.google.common.collect.ImmutableMap.builder;
+import static javax.jcr.Repository.REP_NAME_DESC;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_HTML;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.ok;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.IOException;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import org.fcrepo.AbstractResource;
+import org.fcrepo.jaxb.responses.access.DescribeRepository;
+import org.fcrepo.provider.VelocityViewer;
+import org.fcrepo.services.ObjectService;
+import org.fcrepo.services.RepositoryService;
+import org.fcrepo.session.InjectedSession;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.annotation.Timed;
+import com.google.common.collect.ImmutableMap.Builder;
+
+@Component(&quot;fedoraLegacyRepository&quot;)
+@Scope(&quot;prototype&quot;)
+@Path(&quot;/v3/describe&quot;)
+<span class="fc" id="L57">public class FedoraRepository extends AbstractResource {</span>
+
+<span class="fc" id="L59">    private static final Logger logger = getLogger(FedoraRepository.class);</span>
+
+    @Autowired
+    private Repository repo;
+
+    @Autowired
+    private ObjectService objectService;
+
+    @InjectedSession
+    protected Session session;
+
+    @GET
+    @Path(&quot;modeshape&quot;)
+    @Timed
+    public Response describeModeshape() throws IOException, RepositoryException {
+<span class="nc" id="L74">        logger.debug(&quot;Repository name: &quot; + repo.getDescriptor(REP_NAME_DESC));</span>
+<span class="nc" id="L75">        final Builder&lt;String, Object&gt; repoproperties = builder();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (final String key : repo.getDescriptorKeys()) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (repo.getDescriptor(key) != null) {</span>
+<span class="nc" id="L78">                repoproperties.put(key, repo.getDescriptor(key));</span>
+            }
+        }
+
+        // add in node namespaces
+<span class="nc" id="L83">        final Builder&lt;String, String&gt; namespaces = builder();</span>
+<span class="nc" id="L84">        namespaces.putAll(RepositoryService.getRepositoryNamespaces(session));</span>
+<span class="nc" id="L85">        repoproperties.put(&quot;node.namespaces&quot;, namespaces.build());</span>
+
+        // add in node types
+<span class="nc" id="L88">        final Builder&lt;String, String&gt; nodetypes = builder();</span>
+<span class="nc" id="L89">        final NodeTypeIterator i = objectService.getAllNodeTypes(session);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L91">            final NodeType nt = i.nextNodeType();</span>
+<span class="nc" id="L92">            nodetypes.put(nt.getName(), nt.toString());</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        repoproperties.put(&quot;node.types&quot;, nodetypes.build());</span>
+<span class="nc" id="L95">        session.logout();</span>
+<span class="nc" id="L96">        return ok(repoproperties.build().toString()).build();</span>
+    }
+
+    @GET
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_XML, APPLICATION_JSON})
+    public DescribeRepository describe() throws RepositoryException {
+
+<span class="fc" id="L104">        final DescribeRepository description = new DescribeRepository();</span>
+<span class="fc" id="L105">        description.repositoryBaseURL = uriInfo.getBaseUri();</span>
+<span class="fc" id="L106">        description.sampleOAIURL =</span>
+                uriInfo.getBaseUriBuilder().path(
+                        LegacyPathHelpers.OBJECT_PATH + &quot;/123/oai_dc&quot;).build();
+<span class="fc" id="L109">        description.repositorySize = objectService.getRepositorySize();</span>
+<span class="fc" id="L110">        description.numberOfObjects = objectService.getRepositoryObjectCount();</span>
+<span class="fc" id="L111">        session.logout();</span>
+<span class="fc" id="L112">        return description;</span>
+    }
+
+    @GET
+    @Timed
+    @Produces(TEXT_HTML)
+    public String describeHtml() throws RepositoryException {
+
+<span class="fc" id="L120">        final VelocityViewer view = new VelocityViewer();</span>
+<span class="fc" id="L121">        return view.getRepoInfo(describe());</span>
+    }
+
+    /**
+     * A testing convenience setter for otherwise injected resources
+     * 
+     * @param repo
+     */
+    public void setRepository(final Repository repo) {
+<span class="nc" id="L130">        this.repo = repo;</span>
+<span class="nc" id="L131">    }</span>
+
+    public void setObjectService(ObjectService objectService) {
+<span class="nc" id="L134">        this.objectService = objectService;</span>
+<span class="nc" id="L135">    }</span>
+
+    public void setSession(final Session session) {
+<span class="nc" id="L138">        this.session = session;</span>
+<span class="nc" id="L139">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

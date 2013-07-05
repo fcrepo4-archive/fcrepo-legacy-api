@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FedoraDatastreams.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.legacy</a> &gt; <span class="el_source">FedoraDatastreams.java</span></div><h1>FedoraDatastreams.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.legacy;
+
+import static com.google.common.collect.ImmutableSet.copyOf;
+import static com.google.common.collect.Iterators.filter;
+import static com.google.common.collect.Iterators.transform;
+import static java.util.Collections.singletonList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
+import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.noContent;
+import static org.fcrepo.jaxb.responses.management.DatastreamProfile.DatastreamStates.A;
+import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.fcrepo.AbstractResource;
+import org.fcrepo.Datastream;
+import org.fcrepo.exception.InvalidChecksumException;
+import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
+import org.fcrepo.jaxb.responses.access.ObjectDatastreams.DatastreamElement;
+import org.fcrepo.jaxb.responses.management.DatastreamHistory;
+import org.fcrepo.jaxb.responses.management.DatastreamProfile;
+import org.fcrepo.session.InjectedSession;
+import org.fcrepo.utils.ContentDigest;
+import org.fcrepo.utils.FedoraTypesUtils;
+import org.slf4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.annotation.Timed;
+import com.google.common.base.Function;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.BodyPartEntity;
+import com.sun.jersey.multipart.MultiPart;
+
+@Component(&quot;fedoraLegacyDatastreams&quot;)
+@Scope(&quot;prototype&quot;)
+@Path(&quot;/v3/objects/{pid}/datastreams&quot;)
+<span class="fc" id="L86">public class FedoraDatastreams extends AbstractResource {</span>
+
+<span class="fc" id="L88">    private final Logger logger = getLogger(FedoraDatastreams.class);</span>
+
+    @InjectedSession
+    protected Session session;
+
+    /**
+     * Returns a list of datastreams for the object
+     * 
+     * @param pid persistent identifier of the digital object
+     * @return the list of datastreams
+     * @throws RepositoryException
+     * @throws IOException
+     */
+
+    @GET
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_JSON})
+    public ObjectDatastreams getDatastreams(@PathParam(&quot;pid&quot;)
+    final String pid) throws RepositoryException, IOException {
+
+        try {
+<span class="fc" id="L109">            final ObjectDatastreams objectDatastreams = new ObjectDatastreams();</span>
+
+<span class="fc" id="L111">            objectDatastreams.datastreams =</span>
+                    getDatastreamsForPath(session, getObjectPath(pid));
+
+<span class="fc" id="L114">            return objectDatastreams;</span>
+        } finally {
+<span class="pc" id="L116">            session.logout();</span>
+        }
+
+    }
+
+    private Set&lt;DatastreamElement&gt; getDatastreamsForPath(Session session,
+            String objectPath) throws RepositoryException {
+<span class="fc" id="L123">        final NodeIterator nodes =</span>
+                nodeService.getObject(session, objectPath).getNode().getNodes();
+<span class="fc" id="L125">        return copyOf(transform(filter(</span>
+                new org.fcrepo.utils.NodeIterator(nodes),
+                FedoraTypesUtils.isFedoraDatastream), ds2dsElement));
+    }
+
+    @POST
+    @Timed
+    public Response modifyDatastreams(@PathParam(&quot;pid&quot;)
+    final String pid, @QueryParam(&quot;delete&quot;)
+    final List&lt;String&gt; dsidList, final MultiPart multipart)
+        throws RepositoryException, IOException, InvalidChecksumException {
+
+        try {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            for (final String dsid : dsidList) {</span>
+<span class="fc" id="L139">                logger.debug(&quot;Purging datastream: &quot; + dsid);</span>
+<span class="fc" id="L140">                nodeService.deleteObject(session, LegacyPathHelpers</span>
+                        .getDatastreamsPath(pid, dsid));
+<span class="fc" id="L142">            }</span>
+
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            for (final BodyPart part : multipart.getBodyParts()) {</span>
+<span class="fc" id="L145">                final String dsid =</span>
+                        part.getContentDisposition().getParameters()
+                                .get(&quot;name&quot;);
+<span class="fc" id="L148">                logger.debug(&quot;Adding datastream: &quot; + dsid);</span>
+<span class="fc" id="L149">                final String dsPath =</span>
+                        LegacyPathHelpers.getDatastreamsPath(pid, dsid);
+<span class="fc" id="L151">                final Object obj = part.getEntity();</span>
+<span class="fc" id="L152">                InputStream src = null;</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">                if (obj instanceof BodyPartEntity) {</span>
+<span class="nc" id="L154">                    final BodyPartEntity entity =</span>
+                            (BodyPartEntity) part.getEntity();
+<span class="nc" id="L156">                    src = entity.getInputStream();</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                } else if (obj instanceof InputStream) {</span>
+<span class="fc" id="L158">                    src = (InputStream) obj;</span>
+                }
+<span class="fc" id="L160">                datastreamService.createDatastreamNode(session, dsPath, part</span>
+                        .getMediaType().toString(), src);
+<span class="fc" id="L162">            }</span>
+
+<span class="fc" id="L164">            session.save();</span>
+<span class="fc" id="L165">            return created(uriInfo.getRequestUri()).build();</span>
+        } finally {
+<span class="pc" id="L167">            session.logout();</span>
+        }
+    }
+
+    @DELETE
+    @Timed
+    public Response deleteDatastreams(@PathParam(&quot;pid&quot;)
+    final String pid, @QueryParam(&quot;dsid&quot;)
+    final List&lt;String&gt; dsidList) throws RepositoryException {
+        try {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">            for (final String dsid : dsidList) {</span>
+<span class="fc" id="L178">                logger.debug(&quot;purging datastream &quot; + dsid);</span>
+<span class="fc" id="L179">                nodeService.deleteObject(session, LegacyPathHelpers</span>
+                        .getDatastreamsPath(pid, dsid));
+<span class="fc" id="L181">            }</span>
+<span class="fc" id="L182">            session.save();</span>
+<span class="fc" id="L183">            return noContent().build();</span>
+        } finally {
+<span class="pc" id="L185">            session.logout();</span>
+        }
+    }
+
+    @GET
+    @Path(&quot;/__content__&quot;)
+    @Produces(&quot;multipart/mixed&quot;)
+    @Timed
+    public Response getDatastreamsContents(@PathParam(&quot;pid&quot;)
+    final String pid, @QueryParam(&quot;dsid&quot;)
+    final List&lt;String&gt; dsids) throws RepositoryException, IOException {
+
+        try {
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">            if (dsids.isEmpty()) {</span>
+<span class="nc" id="L199">                final NodeIterator ni =</span>
+                        objectService
+                                .getObjectNode(session, getObjectPath(pid))
+                                .getNodes();
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                while (ni.hasNext()) {</span>
+<span class="nc" id="L204">                    dsids.add(ni.nextNode().getName());</span>
+                }
+            }
+
+<span class="fc" id="L208">            final MultiPart multipart = new MultiPart();</span>
+
+<span class="fc" id="L210">            final Iterator&lt;String&gt; i = dsids.iterator();</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            while (i.hasNext()) {</span>
+<span class="fc" id="L212">                final String dsid = i.next();</span>
+
+                try {
+<span class="fc" id="L215">                    final Datastream ds =</span>
+                            datastreamService.getDatastream(session,
+                                    LegacyPathHelpers.getDatastreamsPath(pid,
+                                            dsid));
+<span class="fc" id="L219">                    multipart.bodyPart(ds.getContent(), MediaType.valueOf(ds</span>
+                            .getMimeType()));
+<span class="nc" id="L221">                } catch (final PathNotFoundException e) {</span>
+
+<span class="fc" id="L223">                }</span>
+<span class="fc" id="L224">            }</span>
+<span class="fc" id="L225">            return Response.ok(multipart, MULTIPART_FORM_DATA).build();</span>
+        } finally {
+<span class="pc" id="L227">            session.logout();</span>
+        }
+    }
+
+    /**
+     * Create a new datastream with user provided checksum for validation
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @param contentType Content-Type header
+     * @param requestBodyStream Binary blob
+     * @return 201 Created
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws InvalidChecksumException
+     */
+    @POST
+    @Path(&quot;/{dsid}&quot;)
+    @Timed
+    public Response addDatastream(@PathParam(&quot;pid&quot;)
+    final String pid, @QueryParam(&quot;checksum&quot;)
+    final String checksum, @PathParam(&quot;dsid&quot;)
+    final String dsid, @HeaderParam(&quot;Content-Type&quot;)
+    final MediaType requestContentType, final InputStream requestBodyStream)
+        throws IOException, InvalidChecksumException, RepositoryException {
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        final MediaType contentType =</span>
+                requestContentType != null ? requestContentType
+                        : APPLICATION_OCTET_STREAM_TYPE;
+
+        try {
+<span class="fc" id="L257">            final String dsPath =</span>
+                    LegacyPathHelpers.getDatastreamsPath(pid, dsid);
+<span class="fc" id="L259">            logger.debug(&quot;addDatastream {}&quot;, dsPath);</span>
+            final URI checksumURI;
+
+<span class="pc bpc" id="L262" title="3 of 4 branches missed.">            if (checksum != null &amp;&amp; !checksum.isEmpty()) {</span>
+<span class="nc" id="L263">                checksumURI = ContentDigest.asURI(&quot;SHA-1&quot;, checksum);</span>
+            } else {
+<span class="fc" id="L265">                checksumURI = null;</span>
+            }
+<span class="fc" id="L267">            datastreamService.createDatastreamNode(session, dsPath, contentType</span>
+                    .toString(), requestBodyStream, checksumURI);
+<span class="fc" id="L269">            session.save();</span>
+<span class="fc" id="L270">            return created(uriInfo.getAbsolutePath()).build();</span>
+        } finally {
+<span class="pc" id="L272">            session.logout();</span>
+        }
+
+    }
+
+    /**
+     * Modify an existing datastream's content
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @param contentType Content-Type header
+     * @param requestBodyStream Binary blob
+     * @return 201 Created
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws InvalidChecksumException
+     */
+    @PUT
+    @Path(&quot;/{dsid}&quot;)
+    @Timed
+    public Response modifyDatastream(@PathParam(&quot;pid&quot;)
+    final String pid, @PathParam(&quot;dsid&quot;)
+    final String dsid, @HeaderParam(&quot;Content-Type&quot;)
+    final MediaType requestContentType, final InputStream requestBodyStream)
+        throws RepositoryException, IOException, InvalidChecksumException {
+
+        try {
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">            final MediaType contentType =</span>
+                    requestContentType != null ? requestContentType
+                            : APPLICATION_OCTET_STREAM_TYPE;
+<span class="fc" id="L302">            final String dsPath =</span>
+                    LegacyPathHelpers.getDatastreamsPath(pid, dsid);
+
+<span class="fc" id="L305">            datastreamService.createDatastreamNode(session, dsPath, contentType</span>
+                    .toString(), requestBodyStream);
+<span class="fc" id="L307">            session.save();</span>
+<span class="fc" id="L308">            return created(uriInfo.getRequestUri()).build();</span>
+        } finally {
+<span class="pc" id="L310">            session.logout();</span>
+        }
+
+    }
+
+    /**
+     * Get the datastream profile of a datastream
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
+    @GET
+    @Path(&quot;/{dsid}&quot;)
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_JSON})
+    public DatastreamProfile getDatastream(@PathParam(&quot;pid&quot;)
+    final String pid, @PathParam(&quot;dsid&quot;)
+    final String dsid) throws RepositoryException, IOException {
+
+        try {
+<span class="fc" id="L334">            logger.trace(&quot;Executing getDatastream() with dsId: &quot; + dsid);</span>
+<span class="fc" id="L335">            return getDSProfile(datastreamService.getDatastream(session,</span>
+                    LegacyPathHelpers.getDatastreamsPath(pid, dsid)));
+        } finally {
+<span class="pc" id="L338">            session.logout();</span>
+        }
+
+    }
+
+    /**
+     * Get the binary content of a datastream
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return Binary blob
+     * @throws RepositoryException
+     */
+    @GET
+    @Path(&quot;/{dsid}/content&quot;)
+    public Response getDatastreamContent(@PathParam(&quot;pid&quot;)
+    final String pid, @PathParam(&quot;dsid&quot;)
+    final String dsid, @Context
+    final Request request) throws RepositoryException {
+
+        try {
+<span class="fc" id="L359">            final Datastream ds =</span>
+                    datastreamService.getDatastream(session, LegacyPathHelpers
+                            .getDatastreamsPath(pid, dsid));
+
+<span class="fc" id="L363">            final EntityTag etag =</span>
+                    new EntityTag(ds.getContentDigest().toString());
+<span class="fc" id="L365">            final Date date = ds.getLastModifiedDate();</span>
+<span class="fc" id="L366">            final Date roundedDate = new Date();</span>
+<span class="fc" id="L367">            roundedDate.setTime(date.getTime() - date.getTime() % 1000);</span>
+<span class="fc" id="L368">            ResponseBuilder builder =</span>
+                    request.evaluatePreconditions(roundedDate, etag);
+
+<span class="fc" id="L371">            final CacheControl cc = new CacheControl();</span>
+<span class="fc" id="L372">            cc.setMaxAge(0);</span>
+<span class="fc" id="L373">            cc.setMustRevalidate(true);</span>
+
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">            if (builder == null) {</span>
+<span class="fc" id="L376">                builder = Response.ok(ds.getContent(), ds.getMimeType());</span>
+            }
+
+<span class="fc" id="L379">            return builder.cacheControl(cc).lastModified(date).tag(etag)</span>
+                    .build();
+        } finally {
+<span class="pc" id="L382">            session.logout();</span>
+        }
+    }
+
+    /**
+     * Get previous version information for this datastream
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
+    @GET
+    @Path(&quot;/{dsid}/versions&quot;)
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_JSON})
+    public DatastreamHistory getDatastreamHistory(@PathParam(&quot;pid&quot;)
+    final String pid, @PathParam(&quot;dsid&quot;)
+    final String dsid) throws RepositoryException, IOException {
+
+        try {
+            // TODO implement this after deciding on a versioning model
+<span class="fc" id="L406">            final Datastream ds =</span>
+                    datastreamService.getDatastream(session, LegacyPathHelpers
+                            .getDatastreamsPath(pid, dsid));
+<span class="fc" id="L409">            final DatastreamHistory dsHistory =</span>
+                    new DatastreamHistory(singletonList(getDSProfile(ds)));
+<span class="fc" id="L411">            dsHistory.dsID = dsid;</span>
+<span class="fc" id="L412">            dsHistory.pid = pid;</span>
+<span class="fc" id="L413">            return dsHistory;</span>
+        } finally {
+<span class="pc" id="L415">            session.logout();</span>
+        }
+    }
+
+    /**
+     * Purge the datastream
+     * 
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 204
+     * @throws RepositoryException
+     */
+    @DELETE
+    @Path(&quot;/{dsid}&quot;)
+    @Timed
+    public Response deleteDatastream(@PathParam(&quot;pid&quot;)
+    final String pid, @PathParam(&quot;dsid&quot;)
+    final String dsid) throws RepositoryException {
+        try {
+<span class="fc" id="L434">            nodeService.deleteObject(session, LegacyPathHelpers</span>
+                    .getDatastreamsPath(pid, dsid));
+<span class="fc" id="L436">            session.save();</span>
+<span class="fc" id="L437">            return noContent().build();</span>
+        } finally {
+<span class="pc" id="L439">            session.logout();</span>
+        }
+    }
+
+    private DatastreamProfile getDSProfile(final Datastream ds)
+        throws RepositoryException, IOException {
+<span class="fc" id="L445">        logger.trace(&quot;Executing getDSProfile() with node: &quot; + ds.getDsId());</span>
+<span class="fc" id="L446">        final DatastreamProfile dsProfile = new DatastreamProfile();</span>
+<span class="fc" id="L447">        dsProfile.dsID = ds.getDsId();</span>
+<span class="fc" id="L448">        dsProfile.pid = ds.getObject().getName();</span>
+<span class="fc" id="L449">        logger.trace(&quot;Retrieved datastream &quot; + ds.getDsId() + &quot;'s parent: &quot; +</span>
+                dsProfile.pid);
+<span class="pc bpc" id="L451" title="1 of 2 branches missed.">        if (ds.getContentDigest() != null) {</span>
+<span class="nc" id="L452">            dsProfile.dsChecksumType =</span>
+                    ContentDigest.getAlgorithm(ds.getContentDigest());
+<span class="nc" id="L454">            dsProfile.dsChecksum = ds.getContentDigest();</span>
+        }
+<span class="fc" id="L456">        dsProfile.dsState = A;</span>
+<span class="fc" id="L457">        dsProfile.dsMIME = ds.getMimeType();</span>
+<span class="fc" id="L458">        dsProfile.dsSize = ds.getSize();</span>
+<span class="fc" id="L459">        dsProfile.dsCreateDate = ds.getCreatedDate();</span>
+<span class="fc" id="L460">        return dsProfile;</span>
+    }
+
+<span class="fc" id="L463">    private Function&lt;Node, DatastreamElement&gt; ds2dsElement =</span>
+<span class="fc" id="L464">            new Function&lt;Node, DatastreamElement&gt;() {</span>
+
+                @Override
+                public DatastreamElement apply(final Node node) {
+<span class="fc" id="L468">                    final Datastream ds = new Datastream(node);</span>
+                    try {
+<span class="fc" id="L470">                        return new DatastreamElement(ds.getDsId(),</span>
+                                ds.getDsId(), ds.getMimeType());
+<span class="nc" id="L472">                    } catch (final RepositoryException e) {</span>
+<span class="nc" id="L473">                        throw new IllegalStateException(e);</span>
+                    }
+                }
+            };
+
+    public void setSession(final Session session) {
+<span class="nc" id="L479">        this.session = session;</span>
+<span class="nc" id="L480">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

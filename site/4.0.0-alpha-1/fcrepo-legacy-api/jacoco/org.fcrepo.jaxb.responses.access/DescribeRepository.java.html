@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DescribeRepository.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.jaxb.responses.access</a> &gt; <span class="el_source">DescribeRepository.java</span></div><h1>DescribeRepository.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.jaxb.responses.access;
+
+import java.net.URI;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = &quot;fedoraRepository&quot;)
+@XmlAccessorType(XmlAccessType.FIELD)
+<span class="fc" id="L28">public class DescribeRepository {</span>
+
+    public static final String FEDORA_VERSION = &quot;4.0-modeshape-candidate&quot;;
+
+    @XmlElement
+    public URI repositoryBaseURL;
+
+<span class="fc" id="L35">    @XmlElement</span>
+    protected String repositoryVersion = FEDORA_VERSION;
+
+    @XmlElement
+    public Long numberOfObjects;
+
+    @XmlElement
+    public Long repositorySize;
+
+    @XmlElement(name = &quot;sampleOAI-URL&quot;)
+    public URI sampleOAIURL;
+
+<span class="fc" id="L47">    @XmlElement(name = &quot;clusterConfiguration&quot;, nillable = true)</span>
+    public DescribeCluster clusterConfiguration = null;
+
+    public URI getRepositoryBaseURL() {
+<span class="nc" id="L51">        return repositoryBaseURL;</span>
+    }
+
+    public void setRepositoryBaseURL(final URI repositoryBaseURL) {
+<span class="nc" id="L55">        this.repositoryBaseURL = repositoryBaseURL;</span>
+<span class="nc" id="L56">    }</span>
+
+    public String getRepositoryVersion() {
+<span class="fc" id="L59">        return repositoryVersion;</span>
+    }
+
+    public void setRepositoryVersion(final String repositoryVersion) {
+<span class="nc" id="L63">        this.repositoryVersion = repositoryVersion;</span>
+<span class="nc" id="L64">    }</span>
+
+    public Long getNumberOfObjects() {
+<span class="fc" id="L67">        return numberOfObjects;</span>
+    }
+
+    public void setNumberOfObjects(final Long numberOfObjects) {
+<span class="nc" id="L71">        this.numberOfObjects = numberOfObjects;</span>
+<span class="nc" id="L72">    }</span>
+
+    public Long getRepositorySize() {
+<span class="fc" id="L75">        return repositorySize;</span>
+    }
+
+    public void setRepositorySize(final Long repositorySize) {
+<span class="nc" id="L79">        this.repositorySize = repositorySize;</span>
+<span class="nc" id="L80">    }</span>
+
+    public URI getSampleOAIURL() {
+<span class="fc" id="L83">        return sampleOAIURL;</span>
+    }
+
+    public void setSampleOAIURL(final URI sampleOAIURL) {
+<span class="nc" id="L87">        this.sampleOAIURL = sampleOAIURL;</span>
+<span class="nc" id="L88">    }</span>
+
+    public DescribeCluster getClusterConfiguration() {
+<span class="nc" id="L91">        return clusterConfiguration;</span>
+    }
+
+    public void setClusterConfiguration(DescribeCluster describeCluster) {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (describeCluster != null)</span>
+<span class="nc" id="L96">            this.clusterConfiguration = describeCluster;</span>
+<span class="nc" id="L97">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

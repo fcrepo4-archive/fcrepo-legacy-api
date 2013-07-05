@@ -1,0 +1,26 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.search,ObjectFields,32,20,0,0,14,8,9,6,9,6
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.search,FieldSearchResult,0,42,0,0,0,17,0,9,0,9
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,DatastreamProfile,0,3,0,0,0,2,0,1,0,1
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,NamespaceListing,0,9,0,0,0,5,0,2,0,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,DatastreamProfile.DatastreamControlGroup,48,0,0,0,2,0,4,0,4,0
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,DatastreamProfile.DatastreamStates,9,39,0,0,0,2,2,2,2,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,DatastreamProfile.DSStores,35,0,2,0,10,0,3,0,2,0
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,NamespaceListing.Namespace,0,12,0,0,0,6,0,2,0,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,NextPid,3,6,0,0,2,3,1,1,1,1
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.management,DatastreamHistory,3,6,0,0,2,3,1,1,1,1
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraObjects,64,163,2,4,4,33,3,9,1,8
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraRepository,109,57,6,0,23,11,7,4,4,4
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraFieldSearch,15,177,1,3,5,38,3,7,2,6
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraDatastreams.new Function() {...},6,21,0,0,2,3,0,2,0,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraDatastreams,113,522,12,16,11,97,11,17,1,13
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraNamespaces,28,122,0,4,2,24,1,7,1,5
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,FedoraIdentifiers,4,18,0,0,2,2,1,2,1,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.legacy,LegacyPathHelpers,3,29,0,0,1,3,1,3,1,3
+fcrepo 3.x compatible HTTP API,org.fcrepo.provider,VelocityViewer,19,73,0,0,8,17,0,4,0,4
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,DescribeRepository,32,21,2,0,15,7,9,5,8,5
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,ObjectDatastreams.DatastreamElement,3,12,0,0,2,5,1,1,1,1
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,ObjectProfile.ObjectStates,9,39,0,0,0,2,2,2,2,2
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,ObjectDatastreams,0,3,0,0,0,2,0,1,0,1
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,DescribeCluster,97,0,0,0,32,0,16,0,16,0
+fcrepo 3.x compatible HTTP API,org.fcrepo.jaxb.responses.access,ObjectProfile,0,3,0,0,0,2,0,1,0,1

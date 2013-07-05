@@ -1,0 +1,5 @@
+org.fcrepo.jaxb.responses.access
+org.fcrepo.jaxb.responses.management
+org.fcrepo.jaxb.search
+org.fcrepo.legacy
+org.fcrepo.provider

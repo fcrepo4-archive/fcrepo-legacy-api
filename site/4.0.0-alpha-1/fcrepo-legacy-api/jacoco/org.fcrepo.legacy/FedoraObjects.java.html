@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FedoraObjects.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.legacy</a> &gt; <span class="el_source">FedoraObjects.java</span></div><h1>FedoraObjects.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.legacy;
+
+import static com.hp.hpl.jena.sparql.util.FmtUtils.stringEsc;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_HTML;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.noContent;
+import static javax.ws.rs.core.Response.ok;
+import static org.fcrepo.jaxb.responses.access.ObjectProfile.ObjectStates.A;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.IOException;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.fcrepo.AbstractResource;
+import org.fcrepo.FedoraObject;
+import org.fcrepo.jaxb.responses.access.ObjectProfile;
+import org.fcrepo.rdf.GraphSubjects;
+import org.fcrepo.rdf.impl.DefaultGraphSubjects;
+import org.fcrepo.session.InjectedSession;
+import org.fcrepo.utils.FedoraJcrTypes;
+import org.slf4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.annotation.Timed;
+
+@Component(&quot;fedoraLegacyObjects&quot;)
+@Scope(&quot;prototype&quot;)
+@Path(&quot;/v3/objects&quot;)
+<span class="fc" id="L60">public class FedoraObjects extends AbstractResource {</span>
+
+<span class="fc" id="L62">    private static final Logger logger = getLogger(FedoraObjects.class);</span>
+
+<span class="fc" id="L64">    private static final GraphSubjects graphSubjects =</span>
+            new DefaultGraphSubjects();
+
+    @InjectedSession
+    protected Session session;
+
+    /**
+     * Provides a serialized list of JCR names for all objects in the repo.
+     * 
+     * @return 200
+     * @throws RepositoryException
+     */
+    @GET
+    @Timed
+    public Response getObjects() throws RepositoryException {
+
+        try {
+<span class="fc" id="L81">            return ok(</span>
+                    nodeService.getObjectNames(session,
+                            LegacyPathHelpers.OBJECT_PATH).toString()).build();
+        } finally {
+<span class="pc" id="L85">            session.logout();</span>
+        }
+
+    }
+
+    /**
+     * Creates a new object with a repo-chosen PID
+     * 
+     * @return 201
+     * @throws RepositoryException
+     */
+    @POST
+    @Path(&quot;/new&quot;)
+    @Timed
+    public Response ingestAndMint() throws RepositoryException {
+<span class="fc" id="L100">        return ingest(pidMinter.mintPid(), &quot;&quot;);</span>
+    }
+
+    /**
+     * Does nothing yet-- must be improved to handle the FCREPO3 PUT to
+     * /objects/{pid}
+     * 
+     * @param pid
+     * @return 201
+     * @throws RepositoryException
+     */
+    @PUT
+    @Path(&quot;/{pid}&quot;)
+    @Timed
+    public Response modify(@PathParam(&quot;pid&quot;)
+    final String pid) throws RepositoryException {
+        try {
+            // TODO do something with awful mess of fcrepo3 query params
+<span class="fc" id="L118">            session.save();</span>
+<span class="fc" id="L119">            return created(uriInfo.getRequestUri()).build();</span>
+        } finally {
+<span class="pc" id="L121">            session.logout();</span>
+        }
+    }
+
+    /**
+     * Creates a new object.
+     * 
+     * @param pid
+     * @return 201
+     * @throws RepositoryException
+     */
+    @POST
+    @Path(&quot;/{pid}&quot;)
+    @Timed
+    public Response ingest(@PathParam(&quot;pid&quot;)
+    final String pid, @QueryParam(&quot;label&quot;)
+    @DefaultValue(&quot;&quot;)
+    final String label) throws RepositoryException {
+
+<span class="fc" id="L140">        logger.debug(&quot;Attempting to ingest with pid: {}&quot;, pid);</span>
+
+        try {
+<span class="fc" id="L143">            final FedoraObject result =</span>
+                    objectService.createObject(session, LegacyPathHelpers
+                            .getObjectPath(pid));
+
+<span class="pc bpc" id="L147" title="1 of 4 branches missed.">            if (label != null &amp;&amp; !&quot;&quot;.equals(label)) {</span>
+
+<span class="nc" id="L149">                result.updatePropertiesDataset(&quot;INSERT { &lt;&quot; +</span>
+                        graphSubjects.getGraphSubject(result.getNode()) +
+                        &quot;&gt; &lt;http://purl.org/dc/terms/title&gt; \&quot;&quot; +
+                        stringEsc(label) + &quot;\&quot;} WHERE { }&quot;);
+            }
+
+<span class="fc" id="L155">            session.save();</span>
+<span class="fc" id="L156">            logger.debug(&quot;Finished ingest with pid: {}&quot;, pid);</span>
+<span class="fc" id="L157">            return created(uriInfo.getRequestUri()).entity(pid).build();</span>
+
+        } finally {
+<span class="pc" id="L160">            session.logout();</span>
+        }
+    }
+
+    /**
+     * Returns an object profile.
+     * 
+     * @param pid
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     */
+    @GET
+    @Path(&quot;/{pid}&quot;)
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_JSON, TEXT_HTML})
+    public ObjectProfile getObject(@PathParam(&quot;pid&quot;)
+    final String pid) throws RepositoryException, IOException {
+
+        try {
+<span class="fc" id="L180">            final ObjectProfile objectProfile = new ObjectProfile();</span>
+<span class="fc" id="L181">            final FedoraObject obj =</span>
+                    objectService.getObject(session, LegacyPathHelpers
+                            .getObjectPath(pid));
+<span class="fc" id="L184">            objectProfile.pid = pid;</span>
+
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">            if (obj.getNode().hasProperty(&quot;dc:title&quot;)) {</span>
+<span class="nc" id="L187">                objectProfile.objLabel =</span>
+                        obj.getNode().getProperty(&quot;dc:title&quot;).getValues()[0]
+                                .getString();
+            }
+
+<span class="fc" id="L192">            objectProfile.objOwnerId =</span>
+                    obj.getNode().getProperty(FedoraJcrTypes.JCR_CREATEDBY)
+                            .getString();
+<span class="fc" id="L195">            objectProfile.objCreateDate = obj.getCreatedDate();</span>
+<span class="fc" id="L196">            objectProfile.objLastModDate = obj.getLastModifiedDate();</span>
+<span class="fc" id="L197">            objectProfile.objSize = obj.getSize();</span>
+<span class="fc" id="L198">            objectProfile.objItemIndexViewURL =</span>
+                    uriInfo.getAbsolutePathBuilder().path(&quot;datastreams&quot;)
+                            .build();
+<span class="fc" id="L201">            objectProfile.objState = A;</span>
+<span class="fc" id="L202">            objectProfile.objModels = obj.getModels();</span>
+<span class="fc" id="L203">            return objectProfile;</span>
+        } finally {
+<span class="pc" id="L205">            session.logout();</span>
+        }
+
+    }
+
+    /**
+     * Deletes an object.
+     * 
+     * @param pid
+     * @return
+     * @throws RepositoryException
+     */
+    @DELETE
+    @Path(&quot;/{pid}&quot;)
+    @Timed
+    public Response deleteObject(@PathParam(&quot;pid&quot;)
+    final String pid) throws RepositoryException {
+        try {
+<span class="fc" id="L223">            nodeService.deleteObject(session, LegacyPathHelpers</span>
+                    .getObjectPath(pid));
+        } finally {
+<span class="pc" id="L226">            session.save();</span>
+<span class="fc" id="L227">        }</span>
+<span class="fc" id="L228">        return noContent().build();</span>
+    }
+
+    public void setSession(final Session session) {
+<span class="nc" id="L232">        this.session = session;</span>
+<span class="nc" id="L233">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

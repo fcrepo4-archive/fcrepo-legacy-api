@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FedoraNamespaces.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.legacy</a> &gt; <span class="el_source">FedoraNamespaces.java</span></div><h1>FedoraNamespaces.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.legacy;
+
+import static com.google.common.collect.ImmutableSet.builder;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.created;
+
+import java.io.IOException;
+import java.net.URI;
+
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import org.fcrepo.AbstractResource;
+import org.fcrepo.jaxb.responses.management.NamespaceListing;
+import org.fcrepo.jaxb.responses.management.NamespaceListing.Namespace;
+import org.fcrepo.session.InjectedSession;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableSet.Builder;
+import com.codahale.metrics.annotation.Timed;
+
+/**
+ * The purpose of this class is to allow clients to manipulate the JCR
+ * namespaces in play in a repository. This is necessary to allow the use of
+ * traditional Fedora namespaced PIDs. Unlike Fedora Classic, a JCR requires
+ * that namespaces be registered before use. The catalog of namespaces is very
+ * simple, just a set of prefix-URI pairs.
+ * 
+ * @author ajs6f
+ */
+@Component(&quot;fedoraLegacyNamespaces&quot;)
+@Scope(&quot;prototype&quot;)
+@Path(&quot;/v3/namespaces&quot;)
+<span class="fc" id="L60">public class FedoraNamespaces extends AbstractResource {</span>
+
+    @InjectedSession
+    protected Session session;
+
+    /**
+     * Creates a new namespace in the JCR for use in identifing objects.
+     * 
+     * @param prefix Prefix to use
+     * @param uri Uri to use
+     * @return 201
+     * @throws RepositoryException
+     */
+    @POST
+    @Timed
+    @Path(&quot;/{prefix}&quot;)
+    public Response registerObjectNamespace(@PathParam(&quot;prefix&quot;)
+    final String prefix, final String uri) throws RepositoryException {
+
+        try {
+<span class="fc" id="L80">            final NamespaceRegistry r =</span>
+                    session.getWorkspace().getNamespaceRegistry();
+<span class="fc" id="L82">            r.registerNamespace(prefix, uri);</span>
+        } finally {
+<span class="pc" id="L84">            session.logout();</span>
+<span class="fc" id="L85">        }</span>
+<span class="fc" id="L86">        return created(uriInfo.getRequestUri()).build();</span>
+    }
+
+    /**
+     * Register multiple object namespaces.
+     * 
+     * @param nses A set of namespaces in JAXB-specified format.
+     * @return 201
+     * @throws RepositoryException
+     */
+    @POST
+    @Timed
+    @Consumes({TEXT_XML, APPLICATION_JSON})
+    public Response registerObjectNamespaces(final NamespaceListing nses)
+        throws RepositoryException {
+
+        try {
+<span class="fc" id="L103">            final NamespaceRegistry r =</span>
+                    session.getWorkspace().getNamespaceRegistry();
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            for (final Namespace ns : nses.namespaces) {</span>
+<span class="fc" id="L106">                r.registerNamespace(ns.prefix, ns.uri.toString());</span>
+<span class="fc" id="L107">            }</span>
+        } finally {
+<span class="pc" id="L109">            session.logout();</span>
+<span class="fc" id="L110">        }</span>
+<span class="fc" id="L111">        return created(uriInfo.getRequestUri()).build();</span>
+    }
+
+    /**
+     * Retrieve a namespace URI from a prefix.
+     * 
+     * @param prefix The prefix to search.
+     * @return A JAXB-specified format Namespace.
+     * @throws RepositoryException
+     */
+    @GET
+    @Path(&quot;/{prefix}&quot;)
+    @Timed
+    @Produces(APPLICATION_JSON)
+    public Namespace retrieveObjectNamespace(@PathParam(&quot;ns&quot;)
+    final String prefix) throws RepositoryException {
+
+<span class="fc" id="L128">        final NamespaceRegistry r =</span>
+                session.getWorkspace().getNamespaceRegistry();
+
+        try {
+<span class="fc" id="L132">            final Namespace ns =</span>
+                    new Namespace(prefix, URI.create(r.getURI(prefix)));
+
+<span class="fc" id="L135">            return ns;</span>
+        } finally {
+<span class="pc" id="L137">            session.logout();</span>
+        }
+    }
+
+    /**
+     * @return
+     * @throws RepositoryException
+     * @throws IOException
+     */
+    @GET
+    @Timed
+    @Produces({TEXT_XML, APPLICATION_JSON})
+    public NamespaceListing getNamespaces() throws RepositoryException,
+        IOException {
+<span class="fc" id="L151">        final Builder&lt;Namespace&gt; b = builder();</span>
+        try {
+<span class="fc" id="L153">            final NamespaceRegistry r =</span>
+                    session.getWorkspace().getNamespaceRegistry();
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            for (final String prefix : r.getPrefixes()) {</span>
+<span class="fc" id="L157">                b.add(new Namespace(prefix, URI.create(r.getURI(prefix))));</span>
+            }
+        } finally {
+<span class="pc" id="L160">            session.logout();</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">        return new NamespaceListing(b.build());</span>
+    }
+
+    public void setSession(final Session session) {
+<span class="nc" id="L166">        this.session = session;</span>
+<span class="nc" id="L167">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

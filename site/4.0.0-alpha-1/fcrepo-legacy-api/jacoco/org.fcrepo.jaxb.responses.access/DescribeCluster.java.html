@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DescribeCluster.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fcrepo 3.x compatible HTTP API</a> &gt; <a href="index.html" class="el_package">org.fcrepo.jaxb.responses.access</a> &gt; <span class="el_source">DescribeCluster.java</span></div><h1>DescribeCluster.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.fcrepo.jaxb.responses.access;
+
+import static org.fcrepo.services.functions.GetClusterConfiguration.CACHE_MODE;
+import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_MEMBERS;
+import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_NAME;
+import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_SIZE;
+import static org.fcrepo.services.functions.GetClusterConfiguration.NODE_ADDRESS;
+import static org.fcrepo.services.functions.GetClusterConfiguration.NODE_VIEW;
+import static org.fcrepo.services.functions.GetClusterConfiguration.PHYSICAL_ADDRESS;
+
+import java.util.Map;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(name = &quot;clusterConfiguration&quot;)
+@XmlAccessorType(XmlAccessType.FIELD)
+public class DescribeCluster {
+
+    @XmlElement
+    public String cacheMode;
+
+    @XmlElement
+    public String clusterName;
+
+    @XmlElement
+    public String nodeAddress;
+
+    @XmlElement
+    public String physicalAddress;
+
+    @XmlElement
+    public String nodeView;
+
+    @XmlElement
+    public String clusterSize;
+
+    @XmlElement
+    public String clusterMembers;
+
+<span class="nc" id="L59">    public DescribeCluster() {</span>
+
+<span class="nc" id="L61">    }</span>
+
+<span class="nc" id="L63">    public DescribeCluster(Map&lt;String, String&gt; in) {</span>
+<span class="nc" id="L64">        this.setCacheMode(in.get(CACHE_MODE));</span>
+<span class="nc" id="L65">        this.setClusterMembers(in.get(CLUSTER_MEMBERS));</span>
+<span class="nc" id="L66">        this.setClusterName(in.get(CLUSTER_NAME));</span>
+<span class="nc" id="L67">        this.setClusterSize(in.get(CLUSTER_SIZE));</span>
+<span class="nc" id="L68">        this.setNodeAddress(in.get(NODE_ADDRESS));</span>
+<span class="nc" id="L69">        this.setNodeView(in.get(NODE_VIEW));</span>
+<span class="nc" id="L70">        this.setPhysicalAddress(in.get(PHYSICAL_ADDRESS));</span>
+<span class="nc" id="L71">    }</span>
+
+    // Getters and setters mainly used for velocity template access
+    public String getCacheMode() {
+<span class="nc" id="L75">        return cacheMode;</span>
+    }
+
+    public void setCacheMode(String cacheMode) {
+<span class="nc" id="L79">        this.cacheMode = cacheMode;</span>
+<span class="nc" id="L80">    }</span>
+
+    public String getClusterName() {
+<span class="nc" id="L83">        return clusterName;</span>
+    }
+
+    public void setClusterName(String clusterName) {
+<span class="nc" id="L87">        this.clusterName = clusterName;</span>
+<span class="nc" id="L88">    }</span>
+
+    public String getNodeAddress() {
+<span class="nc" id="L91">        return nodeAddress;</span>
+    }
+
+    public void setNodeAddress(String nodeAddress) {
+<span class="nc" id="L95">        this.nodeAddress = nodeAddress;</span>
+<span class="nc" id="L96">    }</span>
+
+    public String getPhysicalAddress() {
+<span class="nc" id="L99">        return physicalAddress;</span>
+    }
+
+    public void setPhysicalAddress(String physicalAddress) {
+<span class="nc" id="L103">        this.physicalAddress = physicalAddress;</span>
+<span class="nc" id="L104">    }</span>
+
+    public String getNodeView() {
+<span class="nc" id="L107">        return nodeView;</span>
+    }
+
+    public void setNodeView(String nodeView) {
+<span class="nc" id="L111">        this.nodeView = nodeView;</span>
+<span class="nc" id="L112">    }</span>
+
+    public String getClusterSize() {
+<span class="nc" id="L115">        return clusterSize;</span>
+    }
+
+    public void setClusterSize(String clusterSize) {
+<span class="nc" id="L119">        this.clusterSize = clusterSize;</span>
+<span class="nc" id="L120">    }</span>
+
+    public String getClusterMembers() {
+<span class="nc" id="L123">        return clusterMembers;</span>
+    }
+
+    public void setClusterMembers(String clusterMembers) {
+<span class="nc" id="L127">        this.clusterMembers = clusterMembers;</span>
+<span class="nc" id="L128">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
