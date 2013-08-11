@@ -34,9 +34,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.fcrepo.AbstractResource;
+import org.fcrepo.http.commons.AbstractResource;
+import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.jaxb.responses.management.NextPid;
-import org.fcrepo.session.InjectedSession;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

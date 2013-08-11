@@ -16,7 +16,7 @@
 
 package org.fcrepo.legacy;
 
-import static org.fcrepo.test.util.TestHelpers.mockDatastream;
+import static org.fcrepo.http.commons.test.util.TestHelpers.mockDatastream;
 import static org.fcrepo.legacy.TestHelpers.getUriInfoImpl;
 import static org.fcrepo.legacy.LegacyPathHelpers.getDatastreamsPath;
 import static org.fcrepo.legacy.LegacyPathHelpers.getObjectPath;
@@ -52,18 +52,16 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.tika.io.IOUtils;
-import org.fcrepo.Datastream;
-import org.fcrepo.FedoraResource;
-import org.fcrepo.exception.InvalidChecksumException;
-import org.fcrepo.identifiers.UUIDPidMinter;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
 import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
-import org.fcrepo.services.DatastreamService;
-import org.fcrepo.services.LowLevelStorageService;
-import org.fcrepo.services.NodeService;
-import org.fcrepo.session.SessionFactory;
-import org.fcrepo.utils.FedoraJcrTypes;
+import org.fcrepo.jcr.FedoraJcrTypes;
+import org.fcrepo.kernel.Datastream;
+import org.fcrepo.kernel.FedoraResource;
+import org.fcrepo.kernel.exception.InvalidChecksumException;
+import org.fcrepo.kernel.services.DatastreamService;
+import org.fcrepo.kernel.services.LowLevelStorageService;
+import org.fcrepo.kernel.services.NodeService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

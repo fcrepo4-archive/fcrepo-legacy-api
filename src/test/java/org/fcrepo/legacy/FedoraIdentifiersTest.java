@@ -20,8 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
-import org.fcrepo.identifiers.PidMinter;
 import org.fcrepo.jaxb.responses.management.NextPid;
+import org.fcrepo.kernel.identifiers.PidMinter;
 import org.fcrepo.legacy.FedoraIdentifiers;
 import org.junit.Before;
 import org.junit.Test;

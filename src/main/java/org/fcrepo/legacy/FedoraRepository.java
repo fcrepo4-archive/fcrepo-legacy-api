@@ -37,12 +37,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.fcrepo.AbstractResource;
+import org.fcrepo.http.commons.AbstractResource;
+import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.jaxb.responses.access.DescribeRepository;
+import org.fcrepo.kernel.services.ObjectService;
+import org.fcrepo.kernel.services.RepositoryService;
 import org.fcrepo.provider.VelocityViewer;
-import org.fcrepo.services.ObjectService;
-import org.fcrepo.services.RepositoryService;
-import org.fcrepo.session.InjectedSession;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

@@ -41,13 +41,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
-import org.fcrepo.FedoraObject;
-import org.fcrepo.identifiers.UUIDPidMinter;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
-import org.fcrepo.services.NodeService;
-import org.fcrepo.services.ObjectService;
-import org.fcrepo.session.SessionFactory;
-import org.fcrepo.utils.FedoraJcrTypes;
+import org.fcrepo.jcr.FedoraJcrTypes;
+import org.fcrepo.kernel.FedoraObject;
+import org.fcrepo.kernel.identifiers.UUIDPidMinter;
+import org.fcrepo.kernel.services.NodeService;
+import org.fcrepo.kernel.services.ObjectService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

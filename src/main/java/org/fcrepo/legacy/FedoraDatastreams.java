@@ -60,16 +60,16 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.fcrepo.AbstractResource;
-import org.fcrepo.Datastream;
-import org.fcrepo.exception.InvalidChecksumException;
+import org.fcrepo.http.commons.AbstractResource;
+import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams;
 import org.fcrepo.jaxb.responses.access.ObjectDatastreams.DatastreamElement;
 import org.fcrepo.jaxb.responses.management.DatastreamHistory;
 import org.fcrepo.jaxb.responses.management.DatastreamProfile;
-import org.fcrepo.session.InjectedSession;
-import org.fcrepo.utils.ContentDigest;
-import org.fcrepo.utils.FedoraTypesUtils;
+import org.fcrepo.kernel.Datastream;
+import org.fcrepo.kernel.exception.InvalidChecksumException;
+import org.fcrepo.kernel.utils.ContentDigest;
+import org.fcrepo.kernel.utils.FedoraTypesUtils;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -123,7 +123,7 @@ public class FedoraDatastreams extends AbstractResource {
         final NodeIterator nodes =
                 nodeService.getObject(session, objectPath).getNode().getNodes();
         return copyOf(transform(filter(
-                new org.fcrepo.utils.NodeIterator(nodes),
+                new org.fcrepo.kernel.utils.NodeIterator(nodes),
                 FedoraTypesUtils.isFedoraDatastream), ds2dsElement));
     }
 

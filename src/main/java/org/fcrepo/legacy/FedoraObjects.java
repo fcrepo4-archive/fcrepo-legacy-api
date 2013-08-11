@@ -41,13 +41,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.fcrepo.AbstractResource;
-import org.fcrepo.FedoraObject;
+import org.fcrepo.http.commons.AbstractResource;
+import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.jaxb.responses.access.ObjectProfile;
-import org.fcrepo.rdf.GraphSubjects;
-import org.fcrepo.rdf.impl.DefaultGraphSubjects;
-import org.fcrepo.session.InjectedSession;
-import org.fcrepo.utils.FedoraJcrTypes;
+import org.fcrepo.jcr.FedoraJcrTypes;
+import org.fcrepo.kernel.FedoraObject;
+import org.fcrepo.kernel.rdf.GraphSubjects;
+import org.fcrepo.kernel.rdf.impl.DefaultGraphSubjects;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -61,8 +61,7 @@ public class FedoraObjects extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraObjects.class);
 
-    private static final GraphSubjects graphSubjects =
-            new DefaultGraphSubjects();
+    private static GraphSubjects graphSubjects;
 
     @InjectedSession
     protected Session session;
@@ -146,8 +145,8 @@ public class FedoraObjects extends AbstractResource {
 
             if (label != null && !"".equals(label)) {
 
-                result.updatePropertiesDataset("INSERT { <" +
-                        graphSubjects.getGraphSubject(result.getNode()) +
+                result.updatePropertiesDataset(getGraphSubjects(), "INSERT { <" +
+                        getGraphSubjects().getGraphSubject(result.getNode()) +
                         "> <http://purl.org/dc/terms/title> \"" +
                         stringEsc(label) + "\"} WHERE { }");
             }
@@ -159,6 +158,13 @@ public class FedoraObjects extends AbstractResource {
         } finally {
             session.logout();
         }
+    }
+
+    private GraphSubjects getGraphSubjects() {
+        if (null == graphSubjects) {
+            graphSubjects = new DefaultGraphSubjects(session);
+        }
+        return graphSubjects;
     }
 
     /**

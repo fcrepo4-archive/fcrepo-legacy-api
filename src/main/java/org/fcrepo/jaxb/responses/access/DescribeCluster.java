@@ -16,13 +16,13 @@
 
 package org.fcrepo.jaxb.responses.access;
 
-import static org.fcrepo.services.functions.GetClusterConfiguration.CACHE_MODE;
-import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_MEMBERS;
-import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_NAME;
-import static org.fcrepo.services.functions.GetClusterConfiguration.CLUSTER_SIZE;
-import static org.fcrepo.services.functions.GetClusterConfiguration.NODE_ADDRESS;
-import static org.fcrepo.services.functions.GetClusterConfiguration.NODE_VIEW;
-import static org.fcrepo.services.functions.GetClusterConfiguration.PHYSICAL_ADDRESS;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.CACHE_MODE;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.CLUSTER_MEMBERS;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.CLUSTER_NAME;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.CLUSTER_SIZE;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.NODE_ADDRESS;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.NODE_VIEW;
+import static org.fcrepo.kernel.services.functions.GetClusterConfiguration.PHYSICAL_ADDRESS;
 
 import java.util.Map;
 

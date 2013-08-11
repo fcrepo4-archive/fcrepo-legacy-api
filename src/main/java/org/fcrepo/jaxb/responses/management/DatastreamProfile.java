@@ -16,6 +16,9 @@
 
 package org.fcrepo.jaxb.responses.management;
 
+import org.fcrepo.kernel.Datastream;
+import org.fcrepo.kernel.utils.LowLevelCacheEntry;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,8 +29,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.fcrepo.Datastream;
-import org.fcrepo.utils.LowLevelCacheEntry;
 
 @XmlRootElement(name = "datastreamProfile",
         namespace = "http://www.fedora.info/definitions/1/0/management/")
